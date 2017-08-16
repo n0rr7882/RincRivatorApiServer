@@ -1,0 +1,9 @@
+{
+    "port": 7001,
+    "accessImage": [
+        "jpg",
+        "png",
+        "jpeg",
+        "gif"
+    ]
+}
