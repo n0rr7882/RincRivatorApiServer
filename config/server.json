@@ -6,5 +6,5 @@
         "jpeg",
         "gif"
     ],
-    "dbReset": false
+    "dbReset": true
 }

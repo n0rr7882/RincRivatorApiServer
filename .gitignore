@@ -1,0 +1,8 @@
+# log파일
+*.log
+# ftp설정
+.vscode/
+# config 파일 내 password
+config/*
+# user data
+public/users

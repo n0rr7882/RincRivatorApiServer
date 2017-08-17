@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const SqlString = require('sqlstring');
 const config = require('../config/server');
 
 module.exports = {
@@ -17,12 +18,16 @@ module.exports = {
 		];
 		for (var i in cl) {
 			if (cl[i][0] === undefined || !cl[i][2].test(cl[i][0])) { // 체크리스트 검증 정규식 검사
-				res.status(404).json({ success: false, text: cl[i][1] }).end(); // 걸리면 false 리턴하고 해당 메세지 json responsing
+				res.status(404).json({
+					status: { success: false, message: cl[i][1] }
+				}).end(); // 걸리면 false 리턴하고 해당 메세지 json responsing
 				return false;
 			}
 		}
 		if (data.userPw !== data.rePw) {
-			res.status(404).json({ success: false, text: `비밀번호가 일치하지 않습니다.` }).end();
+			res.status(404).json({
+				status: { success: false, message: `비밀번호가 일치하지 않습니다.` }
+			}).end();
 			return false;
 		}
 		return true; // 전부 통과할 경우 true 리턴
@@ -41,11 +46,15 @@ module.exports = {
 			if (afl.test(files.profileImage.name)) { // 정규식 검사
 				return true;
 			} else {
-				res.status(404).json({ success: false, text: `허용되지 않은 파일 확장자 입니다.` }).end(); // 검사 실패시 메세지 json responsing
+				res.status(404).json({
+					status: { success: false, message: `허용되지 않은 파일 확장자 입니다.` }
+				}).end(); // 검사 실패시 메세지 json responsing
 				return false;
 			}
 		} else {
-			res.status(404).json({ success: false, text: `파일이 존재하지 않습니다.` }).end(); // 파일 존재하지 않을 시 메세지 json responsing
+			res.status(404).json({
+				status: { success: false, message: `프로필 이미지가 존재하지 않습니다.` }
+			}).end(); // 파일 존재하지 않을 시 메세지 json responsing
 			return false;
 		}
 	},
@@ -64,5 +73,8 @@ module.exports = {
 			salt: salt,
 			userPw: crypto.createHash('sha256').update(userPw + salt).digest('base64')
 		}
+	},
+	sqlEscape: (obj) => {
+		return SqlString.escape(pbj);
 	}
 }
