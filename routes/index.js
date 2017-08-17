@@ -77,4 +77,30 @@ router.post('/users', (req, res) => {
   }
 });
 
+router.post('/users/:userId', (req, res) => {
+  models.User.findAll({
+    where: {
+      userId: req.params.userId
+    }
+  }).then((result) => {
+    if (result.length === 1) {
+      models.User.findAll({
+        where: {
+          $and: [{ userId: result[0].userId }, { userPw: t.encryptPassword(req.body.userPw, result[0].salt).userPw }]
+        }
+      }).then((account) => {
+        if (account.length === 1) {
+          res.status(200).json({ success: true, user: account[0], text: `조회에 성공하였습니다.` }).end();
+        } else {
+          res.status(404).json({ success: false, user: null, text: `비밀번호가 일치하지 않습니다.` }).end();
+        }
+      });
+    } else {
+      res.status(404).json({ success: false, user: null, text: `일치하는 계정이 존재하지 않습니다.` }).end();
+    }
+  }).catch((err) => {
+    res.status(500).json({ success: false, user: null, text: `계정 조회 중 알 수 없는 오류가 발생하였습니다.` }).end();
+  });
+});
+
 module.exports = router;
