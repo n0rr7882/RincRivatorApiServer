@@ -5,16 +5,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,
-            autoInCrement: true
+            autoIncrement: true
         },
         noticeKey: {
             field: 'notice_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false
         },
-        userKey: {
-            field: 'user_key',
-            type: DataTypes.INTEGER({ length: 11 }),
+        userId: {
+            field: 'user_id',
+            type: DataTypes.STRING,
             allowNull: false
         },
         isRead: {

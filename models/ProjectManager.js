@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const UserDegree = sequelize.define('UserDegree', {
+    const ProjectManager = sequelize.define('ProjectManager', {
         _id: {
             field: '_id',
             type: DataTypes.INTEGER({ length: 11 }),
@@ -7,32 +7,26 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        userKey: {
-            field: 'user_key',
+        projectKey: {
+            field: 'project_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false
         },
-        dgImage: {
-            field: 'dg_image',
+        userId: {
+            field: 'user_id',
             type: DataTypes.STRING,
             allowNull: false
         },
-        dgCategory: {
-            field: 'dg_category',
+        tmPart: {
+            field: 'team_part',
             type: DataTypes.STRING,
-            allowNull: false
-        },
-        dgDescription: {
-            field: 'dg_description',
-            type: DataTypes.TEXT,
             allowNull: false
         }
     }, {
             underscored: true,
             freezeTableName: true,
-            tableName: 'user_degree',
+            tableName: 'project_manager',
             timestamps: false
         });
-
-    return UserDegree;
+    return ProjectManager;
 }

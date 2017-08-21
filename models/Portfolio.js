@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const UserPortfolio = sequelize.define('UserPortfolio', {
+    const Portfolio = sequelize.define('Portfolio', {
         _id: {
             field: '_id',
             type: DataTypes.INTEGER({ length: 11 }),
@@ -7,32 +7,32 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        userKey: {
-            field: 'user_key',
-            type: DataTypes.INTEGER({ length: 11 }),
-            allowNull: false
-        },
-        pfImage: {
-            field: 'pf_image',
+        userId: {
+            field: 'user_id',
             type: DataTypes.STRING,
             allowNull: false
         },
-        pfCategory: {
-            field: 'pf_category',
+        portfolioTitle: {
+            field: 'portfolio_title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        pfDescription: {
-            field: 'pf_description',
+        portfolioDescription: {
+            field: 'portfolio_description',
             type: DataTypes.TEXT,
+            allowNull: false
+        },
+        portfolioFile: {
+            field: 'portfolio_file',
+            type: DataTypes.STRING,
             allowNull: false
         }
     }, {
             underscored: true,
             freezeTableName: true,
-            tableName: 'user_portfolio',
+            tableName: 'portfolio',
             timestamps: false
         });
 
-    return UserPortfolio;
+    return Portfolio;
 }

@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
-const index = require('./routes/index');
+const user = require('./routes/user');
+
 const config = require('./config/server');
 
 const models = require('./models');
@@ -29,10 +30,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(fileUpload());
+app.use(fileUpload({
+  limits: { fileSize: 5 * 1024 * 1024 },
+}));
 app.use(cors());
 
-app.use('/', index);
+// app.use('/', index);
+app.use('/users', user);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

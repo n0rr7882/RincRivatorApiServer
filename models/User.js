@@ -1,15 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
-        userKey: {
-            field: 'user_key',
-            type: DataTypes.INTEGER({ length: 11 }),
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true
-        },
         userId: {
             field: 'user_id',
             type: DataTypes.STRING,
+            primaryKey: true,
             allowNull: false
         },
         userPw: {
@@ -27,11 +21,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        profileUrl: {
-            field: 'profile_url',
-            type: DataTypes.STRING,
-            allowNull: false
-        },
         phoneNumber: {
             field: 'phone_number',
             type: DataTypes.STRING,
@@ -42,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        localArea: {
-            field: 'local_area',
+        localDistrict: {
+            field: 'local_district',
             type: DataTypes.STRING,
             allowNull: false
         },

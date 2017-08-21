@@ -5,25 +5,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,
-            autoInCrement: true
+            autoIncrement: true
         },
-        userKey: {
-            field: 'user_key',
-            type: DataTypes.INTEGER({ length: 11 }),
-            allowNull: false
-        },
-        ctImage1: {
-            field: 'ct_image1',
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        ctImage2: {
-            field: 'ct_image2',
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        ctImage3: {
-            field: 'ct_image3',
+        userId: {
+            field: 'user_id',
             type: DataTypes.STRING,
             allowNull: false
         },
