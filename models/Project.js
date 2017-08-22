@@ -23,22 +23,22 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         projectTeamName: {
-            field: '_team_name',
+            field: 'project_team_name',
             type: DataTypes.STRING,
             allowNull: false
         },
         projectCategory: {
-            field: 'pj_category',
+            field: 'project_category',
             type: DataTypes.STRING,
             allowNull: false
         },
         projectMemberNum: {
-            field: 'pj_member_num',
+            field: 'project_member_num',
             type: DataTypes.INTEGER,
             allowNull: false
         },
         projectDescription: {
-            field: 'pj_description',
+            field: 'project_description',
             type: DataTypes.TEXT,
             allowNull: false
         }

@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
 const user = require('./routes/user');
+const portfolio = require('./routes/portfolio');
 
 const config = require('./config/server');
 
@@ -37,6 +38,7 @@ app.use(cors());
 
 // app.use('/', index);
 app.use('/users', user);
+app.use('/portfolio', portfolio);
 
 
 // catch 404 and forward to error handler

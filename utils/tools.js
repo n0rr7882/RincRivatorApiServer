@@ -28,7 +28,7 @@ module.exports = {
 	checkImage: (imageFile, res, isStrict) => { // 파일 검증
 		if (imageFile) { // 파일 존재여부
 			let fileReg = `\.(`;
-			for (var i in config.accessImage) { // config 파일에 정의해둔 허용파일 리스트로 검증 정규식 생성
+			for (let i in config.accessImage) { // config 파일에 정의해둔 허용파일 리스트로 검증 정규식 생성
 				if (i === config.accessImage.length)
 					fileReg += config.accessImage[i];
 				else
@@ -55,11 +55,34 @@ module.exports = {
 			}
 		}
 	},
-	isLogin: (req) => {
-		if (req.session && req.session.id && req.session.isLogin) {
-			return true;
+	checkFile: (file, res, isStrict) => {
+		if (file) {
+			let fileReg = `\.(`;
+			for (let i in config.accessFile) { // config 파일에 정의해둔 허용파일 리스트로 검증 정규식 생성
+				if (i === config.accessFile.length)
+					fileReg += config.accessFile[i];
+				else
+					fileReg += (config.accessFile[i] + '|');
+			}
+			fileReg += `)`;
+			let afl = new RegExp(fileReg); // 정규식 생성
+			if (afl.test(file.name)) { // 정규식 검사
+				return true;
+			} else {
+				res.status(404).json({
+					status: { success: false, message: `허용되지 않은 파일 확장자 입니다.` }
+				}).end(); // 검사 실패시 메세지 json responsing
+				return false;
+			}
 		} else {
-			return false;
+			if (isStrict) {
+				res.status(404).json({
+					status: { success: false, message: `파일이 존재하지 않습니다.` }
+				}).end(); // 파일 존재하지 않을 시 메세지 json responsing
+				return false;
+			} else {
+				return true;
+			}
 		}
 	},
 	encryptPassword: (userPw, salt) => {

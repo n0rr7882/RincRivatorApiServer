@@ -1,3 +1,5 @@
+const models = require('./index');
+
 module.exports = (sequelize, DataTypes) => {
     const Portfolio = sequelize.define('Portfolio', {
         _id: {

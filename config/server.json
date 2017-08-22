@@ -6,5 +6,18 @@
         "jpeg",
         "gif"
     ],
-    "dbReset": true
+    "accessFile": [
+        "doc",
+        "docx",
+        "ppt",
+        "pptx",
+        "txt",
+        "zip",
+        "7z",
+        "jpg",
+        "png",
+        "jpeg",
+        "gif"
+    ],
+    "dbReset": false
 }
