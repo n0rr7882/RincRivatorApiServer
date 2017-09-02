@@ -49,6 +49,7 @@ passportUtil();
 app.use('/users', require('./routes/user'));
 app.use('/portfolios', require('./routes/portfolio'));
 app.use('/courses', require('./routes/course'));
+app.use('/course-managers', require('./routes/course-manager'));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

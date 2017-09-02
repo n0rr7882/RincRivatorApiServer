@@ -17,7 +17,7 @@ module.exports = {
 		];
 		for (let i in cl) {
 			if ((cl[i][0] || isStrict) && !cl[i][2].test(cl[i][0])) { // 체크리스트 검증 정규식 검사
-				res.status(404).json({
+				res.status(400).json({
 					status: { success: false, message: cl[i][1] }
 				}).end(); // 걸리면 false 리턴하고 해당 메세지 json responsing
 				return false;

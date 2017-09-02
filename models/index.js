@@ -50,7 +50,7 @@ db.Course.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } 
 // // course can have many course managers
 db.CourseManager.belongsTo(db.Course, { foreignKey: { name: 'courseKey', allowNull: false } });
 // // user can join many courses
-db.ContestManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+db.CourseManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
 // // course can have many course reviews
 db.CourseReview.belongsTo(db.Course, { foreignKey: { name: 'courseKey', allowNull: false } });
 // // user can write many course reviews
