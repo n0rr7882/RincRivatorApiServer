@@ -1,3 +1,5 @@
+const models = require('./index');
+
 module.exports = (sequelize, DataTypes) => {
     const Project = sequelize.define('Project', {
         projectKey: {
@@ -12,33 +14,33 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        projectTitle: {
-            field: 'project_title',
+        title: {
+            field: 'title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        projectDate: {
-            field: 'project_date',
+        date: {
+            field: 'date',
             type: DataTypes.DATE,
             allowNull: false
         },
-        projectTeamName: {
-            field: 'project_team_name',
+        teamName: {
+            field: 'team_name',
             type: DataTypes.STRING,
             allowNull: false
         },
-        projectCategory: {
-            field: 'project_category',
+        category: {
+            field: 'category',
             type: DataTypes.STRING,
             allowNull: false
         },
-        projectMemberNum: {
-            field: 'project_member_num',
+        memberNum: {
+            field: 'member_num',
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        projectDescription: {
-            field: 'project_description',
+        description: {
+            field: 'description',
             type: DataTypes.TEXT,
             allowNull: false
         }
@@ -46,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'project',
-            timestamps: false
+            timestamps: true
         });
     return Project;
 }

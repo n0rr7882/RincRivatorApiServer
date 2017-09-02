@@ -12,43 +12,48 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        ctPriseNum: {
-            field: 'ct_prise_num',
+        title: {
+            field: 'title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        ctDescription: {
-            field: 'ct_description',
+        priseNum: {
+            field: 'prise_num',
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        description: {
+            field: 'description',
             type: DataTypes.TEXT,
             allowNull: false
         },
-        ctFieldEntry: {
-            field: 'ct_field_entry',
+        fieldEntry: {
+            field: 'field_entry',
             type: DataTypes.STRING,
             allowNull: false
         },
-        ctCriteria: {
-            field: 'ct_criteria',
+        criteria: {
+            field: 'criteria',
             type: DataTypes.STRING,
             allowNull: false
         },
-        ctAward: {
-            field: 'ct_award',
+        award: {
+            field: 'award',
             type: DataTypes.TEXT,
             allowNull: false
         },
-        ctDateStart: {
-            field: 'ct_date_start',
+        dateStart: {
+            field: 'date_start',
             type: DataTypes.DATE,
             allowNull: false
         },
-        ctDateEnd: {
-            field: 'ct_date_end',
+        dateEnd: {
+            field: 'date_end',
             type: DataTypes.DATE,
             allowNull: false
         },
-        ctStatus: {
-            field: 'ct_status',
+        status: {
+            field: 'status',
             type: DataTypes.INTEGER,
             allowNull: false
         }
@@ -56,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'contest',
-            timestamps: false
+            timestamps: true
         });
     return Contest;
 }

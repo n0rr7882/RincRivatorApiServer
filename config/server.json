@@ -1,23 +1,6 @@
 {
-    "port": 7001,
-    "accessImage": [
-        "jpg",
-        "png",
-        "jpeg",
-        "gif"
-    ],
-    "accessFile": [
-        "doc",
-        "docx",
-        "ppt",
-        "pptx",
-        "txt",
-        "zip",
-        "7z",
-        "jpg",
-        "png",
-        "jpeg",
-        "gif"
-    ],
+    "port": 3000,
+    "accessImage": ".(jpg|jpeg|png|gif)$",
+    "accessFile": ".(doc|docx|ppt|pptx|txt|zip|7z|jpg|png|jpeg|gif)$",
     "dbReset": false
 }

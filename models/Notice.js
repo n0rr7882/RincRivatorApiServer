@@ -12,26 +12,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        ntTitle: {
-            field: 'nt_title',
+        title: {
+            field: 'title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        ntContent: {
-            field: 'nt_content',
+        content: {
+            field: 'content',
             type: DataTypes.TEXT,
-            allowNull: false
-        },
-        ntDate: {
-            field: 'nt_date',
-            type: DataTypes.DATE,
             allowNull: false
         }
     }, {
             underscored: true,
             freezeTableName: true,
             tableName: 'notice',
-            timestamps: false
+            timestamps: true
         });
     return Notice;
 }

@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        phoneNumber: {
-            field: 'phone_number',
+        phone: {
+            field: 'phone',
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -46,8 +46,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        userStatus: {
-            field: 'user_status',
+        userType: {
+            field: 'user_type',
             type: DataTypes.INTEGER,
             allowNull: false
         }
@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'user',
-            timestamps: false
+            timestamps: true
         });
 
     return User;

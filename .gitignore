@@ -1,8 +1,11 @@
-# log파일
+# 유저 정보
+public/*
+
+# 로그 파일
 *.log
-# ftp설정
-.vscode/
-# config 파일 내 password
-config/*
-# user data
-public/users
+
+# 모듈 파일
+node_modules/*
+
+# 암호화 모듈
+utils/password.js

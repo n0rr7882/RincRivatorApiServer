@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const ProjectManager = sequelize.define('ProjectManager', {
-        _id: {
-            field: '_id',
+        managerKey: {
+            field: 'manager_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,

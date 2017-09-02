@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const Course = sequelize.define('CourseManager', {
-        _id: {
-            field: '_id',
+        managerKey: {
+            field: 'manager_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,
@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false
         },
-        csStatus: {
-            field: 'cs_status',
+        status: {
+            field: 'status',
             type: DataTypes.INTEGER,
             allowNull: false
         }
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'course_manager',
-            timestamps: false
+            timestamps: true
         });
     return Course;
 }

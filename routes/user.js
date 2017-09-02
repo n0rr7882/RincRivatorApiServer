@@ -1,272 +1,207 @@
 const express = require('express');
-const mkdir = require('mkdirp');
-const rmdir = require('rimraf');
-const fs = require('fs');
+const mkdirp = require('mkdirp-promise');
+const rimraf = require('rimraf-promise');
+const passport = require('passport');
 
-const t = require('../utils/tools'); // 입력 검증 등에 필요한 도구
 const models = require('../models');
+
+const ac = require('../utils/accountcheck');
+const fc = require('../utils/filecheck');
 
 const router = express.Router();
 
-// 계정 조회 (pw o)
-router.post('/l/:userId', (req, res) => {
-	models.User.findAll({
-		where: { userId: req.params.userId }
-	}).then((r) => {
-		if (r.length === 1) {
-			models.User.findAll({
-				where: {
-					$and: [{ userId: r[0].userId }, { userPw: t.encryptPassword(req.body.userPw, r[0].salt).userPw }]
-				}
-			}).then((u) => {
-				if (u.length === 1) {
-					res.status(200).json({
-						status: { success: true, message: `조회에 성공하였습니다.` },
-						user: u[0]
-					}).end();
-				} else {
-					res.status(404).json({
-						status: { success: false, message: `비밀번호가 일치하지 않습니다.` },
-						user: null
-					}).end();
-				}
-			}).catch((e) => {
-				res.status(500).json({
-					status: { success: false, message: `계정 조회 중 알 수 없는 오류가 발생하였습니다.(i,p)` },
-					user: null
-				}).end();
-			});
-		} else {
-			res.status(404).json({
-				status: { success: false, message: `일치하는 계정이 존재하지 않습니다.` },
-				user: null
-			}).end();
-		}
-	}).catch((e) => {
-		res.status(500).json({
-			status: { success: false, message: `계정 조회 중 알 수 없는 오류가 발생하였습니다.(i)` },
-			user: null
-		}).end();
-	});
+// 로그인
+router.post('/login', (req, res) => {
+  passport.authenticate('local', (e, u, i) => {
+    if (e)
+      res.status(500).json({
+        status: { success: false, message: `계정 인증 중 알 수 없는 오류가 발생하였습니다.` },
+        user: null
+      }).end();
+    else if (i)
+      res.status(404).json({
+        status: { success: false, message: i.message },
+        user: null
+      }).end();
+    else if (u)
+      req.logIn(u, e => {
+        if (e) res.status(500).json({
+          status: { success: false, message: e.message },
+          user: null
+        }).end();
+        else res.status(200).json({
+          status: { success: true, message: `로그인에 성공하였습니다.` },
+          user: u
+        }).end();
+      });
+  })(req, res);
 });
 
-// 계정 생성
-router.post('/:userId', (req, res) => {
-	let d = req.body, profileImage = (req.files && req.files.profileImage) ? req.files.profileImage : undefined;
-	d.userId = req.params.userId;
-	if (t.checkAccount(d, res, true) && t.checkImage(profileImage, res, true)) {
-		models.User.findAll({
-			where: { userId: d.userId }
-		}).then((r) => {
-			if (r.length === 0) {
-				let enc = t.encryptPassword(d.userPw, null);
-				d.salt = enc.salt;
-				d.userPw = enc.userPw;
-				mkdir(`./public/users/${d.userId}`, (e) => {
-					if (!e) {
-						profileImage.mv(`./public/users/${d.userId}/profile-image.jpg`, (e) => {
-							if (!e) {
-								models.User.create(d).then((r) => {
-									res.status(201).json({
-										status: { success: true, message: `계정 "${d.userId}"가 정상적으로 생성되었습니다.` }
-									}).end();
-								}).catch((e) => {
-									console.error(e.stack);
-									res.status(201).json({
-										status: { success: false, message: `계정 생성중 알 수 없는 오류가 발생하였습니다.` }
-									}).end();
-								});
-							} else {
-								console.error(e.stack);
-								res.status(404).json({
-									status: { success: false, message: `프로필 이미지 저장 중 알 수 없는 오류가 발생하였습니다.` }
-								}).end();
-							}
-						});
-					} else {
-						console.error(e.stack);
-						res.status(500).json({
-							status: { success: false, message: `계정 디렉토리 생성 중 알 수 없는 오류가 발생하였습니다.` }
-						}).end();
-					}
-				});
-			} else {
-				res.status(404).json({
-					status: { success: false, message: `아이디 "${d.userId}는 이미 존재하는 계정 입니다."` }
-				}).end();
-			}
-		}).catch((e) => {
-			console.error(e.stack);
-			res.status(500).json({
-				status: { success: false, message: `계정 조회 중 알 수 없는 오류가 발생하였습니다.` }
-			}).end();
-		});
-	}
+// 로그아웃
+router.get('/logout', (req, res) => {
+  req.logOut();
+  res.status(200).json({
+    status: { success: true, message: `정상적으로 로그아웃 되었습니다.` }
+  }).end();
 });
 
-// 계정 리스트 조회
+// 회원가입
+router.post('/register', (req, res) => {
+  res.statusCode = 500;
+  let data = req.body, profileImage = (req.files && req.files.profileImage) ? req.files.profileImage : undefined;
+  if (ac.checkAccount(data, res, true)) {
+    models.User.findOne({ where: { userId: data.userId } }).then(u => {
+      if (u) {
+        res.statusCode = 404;
+        throw new Error('이미 존재하는 아이디 입니다.');
+      }
+    }).then(() => {
+      let encrypted = ac.encryptPassword(data.userPw, null);
+      data.userPw = encrypted.userPw;
+      data.salt = encrypted.salt;
+      return models.User.create(data);
+    }).then(u => {
+      return mkdirp(`./public/users/${data.userId}`)
+    }).then(r => {
+      let imageResult = fc.checkImage(profileImage);
+      if (imageResult.isExist) {
+        if (imageResult.isAvailable) {
+          return profileImage.mv(`./public/users/${data.userId}/profile-image.jpg`);
+        } else {
+          res.statusCode = 404;
+          throw new Error('유효하지 않은 이미지 확장자 입니다.');
+        }
+      }
+    }).then(() => {
+      res.statusCode = 201;
+      res.json({
+        status: { success: true, message: `정상적으로 생성되었습니다.` }
+      }).end();
+    }).catch(e => {
+      res.json({
+        status: { success: false, message: e.message }
+      }).end();
+    })
+  }
+});
+
+// 계정 리스트
 router.get('/list', (req, res) => {
-	let queryWhere = {};
-	let limit = Number(req.query.limit);
-	let offset = Number(req.query.offset);
-	delete (req.query.limit);
-	delete (req.query.offset);
-	for (let elem in req.query) {
-		queryWhere[elem] = req.query[elem];
-	}
-	models.User.findAll({
-		attributes: { exclude: ['userPw', 'salt'] },
-		where: queryWhere,
-		limit: limit,
-		offset: offset
-	}).then((u) => {
-		res.status(200).json({
-			status: { success: true, message: `계정 조회에 성공하였습니다.` },
-			users: u
-		}).end();
-	}).catch((e) => {
-		console.error(e.stack);
-		res.status(500).json({
-			status: { success: false, message: `계정 조회 중 알 수 없는 에러가 발행하였습니다.` },
-			users: null
-		}).end();
-	});
+  res.statusCode = 500;
+  let query = new Object();
+  query.$and = new Array();
+  if (req.query.subject) query.$and.push({ subject: req.query.subject });
+  if (req.query.userType) query.$and.push({ userType: Number(req.query.userType) });
+  models.User.findAll({
+    where: query,
+    offset: Number(req.query.offset) * Number(req.query.limit),
+    limit: Number(req.query.limit),
+    attributes: { exclude: ['userPw', 'salt'] }
+  }).then(u => {
+    if (u.length > 0) return u;
+    res.statusCode = 404;
+    throw new Error(`조회된 계정이 없습니다.`);
+  }).then(u => {
+    res.statusCode = 200;
+    res.json({
+      status: { success: true, message: `계정 리스트 조회에 성공하였습니다.` },
+      users: u
+    }).end();
+  }).catch(e => {
+    res.json({
+      status: { success: false, message: e.message },
+      users: null
+    }).end();
+  });
 });
 
-// 계정 조회 (pw x)
+// 계정
 router.get('/:userId', (req, res) => {
-	models.User.findAll({
-		attributes: { exclude: ['userPw', 'salt'] },
-		where: { userId: req.params.userId },
-		include: { model: models.Portfolio }
-	}).then((u) => {
-		if (u.length === 1) {
-			res.status(200).json({
-				status: { success: true, message: `조회에 성공하였습니다.` },
-				user: u[0]
-			}).end();
-		} else {
-			res.status(404).json({
-				status: { success: false, message: `해당 아이디를 가진 계정이 존재하지 않습니다.` },
-				user: null
-			}).end();
-		}
-	}).catch((e) => {
-		console.error(e.stack);
-		res.status(500).json({
-			status: { success: false, message: `계정 조회 중 알 수 없는 에러가 발행하였습니다.` },
-			user: null
-		}).end();
-	});
+  res.statusCode = 500;
+  models.User.findOne({
+    where: { userId: req.params.userId },
+    attributes: { exclude: ['userPw', 'salt'] },
+  }).then(u => {
+    if (u) return u;
+    res.statusCode = 404;
+    throw new Error(`존재하지 않는 계정입니다.`);
+  }).then(u => {
+    res.statusCode = 200;
+    res.json({
+      status: { success: true, message: `계정 조회에 성공하였습니다.` },
+      user: u
+    }).end();
+  }).catch(e => {
+    res.json({
+      status: { success: false, message: e.message },
+      user: null
+    }).end();
+  });
 });
 
 // 계정 수정
-router.put('/:userId', (req, res) => {
-	let d = req.body, profileImage = (req.files && req.files.profileImage) ? req.files.profileImage : undefined;
-	d.userId = req.params.userId;
-	if (t.checkAccount(d, res, false) && t.checkImage(profileImage, res, false)) {
-		models.User.findAll({
-			where: { userId: req.params.userId }
-		}).then((r) => {
-			if (r.length === 1) {
-				let enc = t.encryptPassword(d.userPw, null);
-				d.salt = enc.salt;
-				d.userPw = enc.userPw;
-				models.User.update(d, {
-					where: {
-						$and: [{ userId: req.params.userId }, { userPw: t.encryptPassword(d.oldUserPw, r[0].salt).userPw }]
-					}
-				}).then((u) => {
-					if (u[0] === 1) {
-						if (profileImage) {
-							profileImage.mv(`./public/users/${d.userId}/profile-image.jpg`, (e) => {
-								if (!e) {
-									res.status(200).json({
-										status: { success: true, message: `계정 "${d.userId}"가 정상적으로 수정되었습니다.` },
-									}).end();
-								} else {
-									console.error(e.stack);
-									res.status(500).json({
-										status: { success: false, message: `프로필 이미지 저장 중 알 수 없는 오류가 발생하였습니다.` },
-									}).end();
-								}
-							});
-						} else {
-							res.status(200).json({
-								status: { success: true, message: `계정 "${d.userId}"가 정상적으로 수정되었습니다.` },
-							}).end();
-						}
-					} else {
-						res.status(404).json({
-							status: { success: false, message: `계정을 수정하지 못하였습니다. 계정 비밀번호를 확인해주세요.` },
-						}).end();
-					}
-				}).catch((e) => {
-					console.error(e.stack);
-					res.status(500).json({
-						status: { success: false, message: `계정 수정 중 알 수 없는 오류가 발생하였습니다.` },
-					}).end();
-				});
-			} else {
-				res.status(404).json({
-					status: { success: false, message: `해당 아이디를 가진 계정이 존재하지 않습니다.` },
-				}).end();
-			}
-		}).catch((e) => {
-			console.error(e.stack);
-			res.status(500).json({
-				status: { success: false, message: `계정 조회 중 알 수 없는 오류가 발생하였습니다.` },
-			}).end();
-		});
-	}
+router.put('/update', (req, res) => {
+  res.statusCode = 500;
+  let data = {}, profileImage = (req.files && req.files.profileImage) ? req.files.profileImage : undefined, isSend = false, updatedUser;
+  if (ac.checkLogin(req, res) && ac.checkAccount(req.body, res, false)) {
+    if (req.body.userPw) {
+      let encrypted = ac.encryptPassword(req.body.userPw, null);
+      data.userPw = encrypted.userPw;
+      data.salt = encrypted.salt;
+    }
+    if (req.body.userName) data.userName = req.body.userName;
+    if (req.body.phone) data.phone = req.body.phone;
+    if (req.body.localCity) data.localCity = req.body.localCity;
+    if (req.body.localDistrict) data.localDistrict = req.body.localDistrict;
+    if (req.body.localTown) data.localTown = req.body.localTown;
+    if (req.body.subject) data.subject = req.body.subject;
+    if (req.body.userType) data.userType = Number(req.body.userType);
+    models.User.update(data, { where: { userId: req.user.userId } }).then(u => {
+      let imageResult = fc.checkImage(profileImage);
+      if (imageResult.isExist) {
+        if (imageResult.isAvailable) {
+          return profileImage.mv(`./public/users/${req.user.userId}/profile-image.jpg`);
+        } else {
+          res.statusCode = 404;
+          throw new Error('유효하지 않은 이미지 확장자 입니다.');
+        }
+      }
+    }).then(() => {
+      return models.User.findOne({ where: { userId: req.user.userId } });
+    }).then(u => {
+      res.statusCode = 200;
+      res.json({
+        status: { success: true, message: `정상적으로 수정되었습니다.` },
+        user: u
+      }).end();
+    }).catch(e => {
+      res.json({
+        status: { success: false, message: e.message },
+        user: null
+      }).end();
+    });
+  }
 });
 
-//계정 삭제
-router.delete('/:userId', (req, res) => {
-	models.User.findAll({
-		where: { userId: req.params.userId }
-	}).then((u) => {
-		if (u.length === 1) {
-			models.User.destroy({
-				where: {
-					$and: [{ userId: u[0].userId }, { userPw: t.encryptPassword(req.body.userPw, u[0].salt).userPw }]
-				}
-			}).then((r) => {
-				if (r) {
-					rmdir(`./public/users/${req.params.userId}`, (e) => {
-						if (!e) {
-							res.status(200).json({
-								status: { success: true, message: `정상적으로 삭제되었습니다.` }
-							}).end();
-						} else {
-							console.error(e.stack);
-							res.status(500).json({
-								status: { success: false, message: `계정 디렉토리 삭제 중 알 수 없는 오류가 발생하였습니다.` }
-							}).end();
-						}
-					});
-				} else {
-					res.status(404).json({
-						status: { success: false, message: `패스워드가 일치하지 않습니다.` }
-					}).end();
-				}
-			}).catch((e) => {
-				console.error(e.stack);
-				res.status(500).json({
-					status: { success: false, message: `계정 삭제 중 알 수 없는 에러가 발생하였습니다.` }
-				}).end();
-			});
-		} else {
-			res.status(404).json({
-				status: { success: false, message: `존재하지 않는 계정입니다.` }
-			}).end();
-		}
-	}).catch((e) => {
-		console.error(e.stack);
-		res.status(500).json({
-			status: { success: false, message: `해당 아이디로 계정 조회 중 알 수 없는 에러가 발생하였습니다.` }
-		}).end();
-	});
+// 계정 삭제
+router.delete('/delete', (req, res) => {
+  res.statusCode = 500;
+  let userId = req.user.userId;
+  if (ac.checkLogin(req, res)) {
+    models.User.destroy({ where: { userId: req.user.userId } }).then(() => {
+      return rimraf(`./public/users/${userId}`)
+    }).then(() => {
+      req.logOut();
+      res.statusCode = 200;
+      res.json({
+        status: { success: true, message: `계정이 정상적으로 삭제되었습니다.` }
+      }).end();
+    }).catch(e => {
+      res.json({
+        status: { success: false, message: e.message }
+      }).end();
+    });
+  }
 });
 
 module.exports = router;

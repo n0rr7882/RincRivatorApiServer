@@ -5,9 +5,10 @@
  */
 
 var app = require('../app');
-var config = require('../config/server');
 var debug = require('debug')('rincrivatorapiserver:server');
 var http = require('http');
+
+const config = require('../config/server');
 
 /**
  * Get port from environment and store in Express.

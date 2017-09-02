@@ -12,33 +12,38 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        courseTitle: {
-            field: 'course_title',
+        title: {
+            field: 'title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        courseCategory: {
-            field: 'course_category',
+        category: {
+            field: 'category',
             type: DataTypes.STRING,
             allowNull: false
         },
-        courseUnit: {
-            field: 'course_unit',
+        unit: {
+            field: 'unit',
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        courseScore: {
-            field: 'course_score',
+        score: {
+            field: 'score',
             type: DataTypes.FLOAT,
             allowNull: false
         },
-        coursePrice: {
-            field: 'course_price',
+        price: {
+            field: 'price',
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        courseCurriculum: {
-            field: 'course_curriculum',
+        isOpen: {
+            field: 'is_open',
+            type: DataTypes.BOOLEAN,
+            allowNull: false
+        },
+        curriculum: {
+            field: 'curriculum',
             type: DataTypes.TEXT,
             allowNull: false
         }
@@ -46,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'course',
-            timestamps: false
+            timestamps: true
         });
     return Course;
 }

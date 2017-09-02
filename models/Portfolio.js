@@ -2,8 +2,8 @@ const models = require('./index');
 
 module.exports = (sequelize, DataTypes) => {
     const Portfolio = sequelize.define('Portfolio', {
-        _id: {
-            field: '_id',
+        portfolioKey: {
+            field: 'portfolio_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,
@@ -14,18 +14,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        portfolioTitle: {
-            field: 'portfolio_title',
+        title: {
+            field: 'title',
             type: DataTypes.STRING,
             allowNull: false
         },
-        portfolioDescription: {
-            field: 'portfolio_description',
+        description: {
+            field: 'description',
             type: DataTypes.TEXT,
             allowNull: false
         },
         portfolioFile: {
-            field: 'portfolio_file',
+            field: 'file',
             type: DataTypes.STRING,
             allowNull: false
         }
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'portfolio',
-            timestamps: false
+            timestamps: true
         });
 
     return Portfolio;

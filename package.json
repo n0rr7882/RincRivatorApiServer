@@ -13,13 +13,14 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "express-fileupload": "^0.1.4",
-    "fs": "0.0.1-security",
-    "mkdirp": "^0.5.1",
+    "express-session": "^1.15.5",
+    "mkdirp-promise": "^5.0.1",
     "morgan": "~1.8.1",
-    "mysql2": "^1.4.1",
-    "rimraf": "^2.6.1",
-    "sequelize": "^4.5.0",
-    "serve-favicon": "~2.4.2",
-    "sqlstring": "^2.2.0"
+    "mysql2": "^1.4.2",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "rimraf-promise": "^2.0.0",
+    "sequelize": "^4.8.0",
+    "serve-favicon": "~2.4.2"
   }
 }

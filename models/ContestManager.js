@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const ContestManager = sequelize.define('ContestManager', {
-        _id: {
-            field: '_id',
+        managerKey: {
+            field: 'manager_key',
             type: DataTypes.INTEGER({ length: 11 }),
             allowNull: false,
             primaryKey: true,
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'contest_manager',
-            timestamps: false
+            timestamps: true
         });
     return ContestManager;
 }

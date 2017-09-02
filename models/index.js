@@ -35,37 +35,39 @@ db.Sequelize = Sequelize;
 
 /* accosiation */
 
-// user can have a user portfolio
-db.Portfolio.hasOne(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // user can have a user portfolio
+db.Portfolio.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
 
-// user can open many contests
-db.User.hasMany(db.Contest, { foreignKey: { name: 'userId', allowNull: false } });
-// contest can have many contest managers
-db.Contest.hasMany(db.ContestManager, { foreignKey: { name: 'contestKey', allowNull: false } });
-// user can join many contests
-db.User.hasMany(db.ContestManager, { foreignKey: { name: 'userId', allowNull: false } });
+// // user can open many contests
+db.Contest.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // contest can have many contest managers
+db.ContestManager.belongsTo(db.Contest, { foreignKey: { name: 'contestKey', allowNull: false } });
+// // user can join many contests
+db.ContestManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
 
-// user can open many courses
-db.User.hasMany(db.Course, { foreignKey: { name: 'userId', allowNull: false } });
-// course can have many course managers
-db.Course.hasMany(db.CourseManager, { foreignKey: { name: 'courseKey', allowNull: false } });
-// user can join many courses
-db.User.hasMany(db.CourseManager, { foreignKey: { name: 'userId', allowNull: false } });
-// course can have many course reviews
-db.Course.hasMany(db.CourseReview, { foreignKey: { name: 'courseKey', allowNull: false } });
-// user can write many course reviews
-db.User.hasMany(db.CourseReview, { foreignKey: { name: 'userId', allowNull: false } });
+// // user can open many courses
+db.Course.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // course can have many course managers
+db.CourseManager.belongsTo(db.Course, { foreignKey: { name: 'courseKey', allowNull: false } });
+// // user can join many courses
+db.ContestManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // course can have many course reviews
+db.CourseReview.belongsTo(db.Course, { foreignKey: { name: 'courseKey', allowNull: false } });
+// // user can write many course reviews
+db.CourseReview.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
 
-// user can write many notices
-db.User.hasMany(db.Notice, { foreignKey: { name: 'userId', allowNull: false } });
-// notice can have many notice managers
-db.Notice.hasMany(db.NoticeManager, { foreignKey: { name: 'noticeKey', allowNull: false } });
+// // user can write many notices
+db.Notice.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // notice can have many notice managers
+db.NoticeManager.belongsTo(db.Notice, { foreignKey: { name: 'noticeKey', allowNull: false } });
+// // user can recive many notice
+db.NoticeManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } })
 
-// user can make many projects
-db.User.hasMany(db.Project, { foreignKey: { name: 'userId', allowNull: false } });
-// project can have many project team members
-db.Project.hasMany(db.ProjectManager, { foreignKey: { name: 'projectKey', allowNull: false } });
-// user can join many projects
-db.User.hasMany(db.ProjectManager, { foreignKey: { name: 'userId', allowNull: false } });
+// // user can make many projects
+db.Project.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
+// // project can have many project team members
+db.ProjectManager.belongsTo(db.Project, { foreignKey: { name: 'projectKey', allowNull: false } });
+// // user can join many projects
+db.ProjectManager.belongsTo(db.User, { foreignKey: { name: 'userId', allowNull: false } });
 
 module.exports = db;
