@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         portfolioFile: {
-            field: 'file',
+            field: 'portfolio_file',
             type: DataTypes.STRING,
             allowNull: false
         }

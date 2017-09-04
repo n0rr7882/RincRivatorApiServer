@@ -23,9 +23,6 @@ models.sequelize.sync({ force: config.dbReset }).then(() => {
 
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -67,7 +64,7 @@ app.use((err, req, res, next) => {
   // render the error page
   res.status(err.status || 500);
   res.json({
-    status: { success: false, message: err.message }
+    status: { success: 500, message: err.message }
   }).end();
 });
 

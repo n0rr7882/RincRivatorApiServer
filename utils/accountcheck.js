@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const config = require('../config/server');
 const pwEnc = require('./password.js');
+const Code = require('../config/status');
 
 module.exports = {
 	checkAccount: (data, res, isStrict) => { // 계정 입력 검증
@@ -18,7 +19,7 @@ module.exports = {
 		for (let i in cl) {
 			if ((cl[i][0] || isStrict) && !cl[i][2].test(cl[i][0])) { // 체크리스트 검증 정규식 검사
 				res.status(400).json({
-					status: { success: false, message: cl[i][1] }
+					status: { success: Code.BAD_REQUEST, message: cl[i][1] }
 				}).end(); // 걸리면 false 리턴하고 해당 메세지 json responsing
 				return false;
 			}
@@ -36,28 +37,28 @@ module.exports = {
 		if (req.isAuthenticated()) {
 			return true;
 		} else {
-			res.status(401).json({
-				status: { success: false, message: `로그인이 필요한 서비스입니다.` }
+			res.status(200).json({
+				status: { success: Code.BAD_REQUEST, message: `로그인이 필요한 서비스입니다.` }
 			}).end();
 			return false;
 		}
 	},
 	onlyTeacher: (req, res) => {
 		if (req.user.userType === 3) return true;
-		else res.status(400).json({
-			status: { success: false, message: `강사 회원만 이용할 수 있는 서비스입니다.` }
+		else res.status(200).json({
+			status: { success: Code.BAD_REQUEST, message: `강사 회원만 이용할 수 있는 서비스입니다.` }
 		}).end();
 	},
 	onlyStudent: (req, res) => {
 		if (req.user.userType === 2) return true;
-		else res.status(400).json({
-			status: { success: false, message: `학생 회원만 이용할 수 있는 서비스입니다.` }
+		else res.status(200).json({
+			status: { success: Code.BAD_REQUEST, message: `학생 회원만 이용할 수 있는 서비스입니다.` }
 		}).end();
 	},
 	onlyAdmin: (req, res) => {
 		if (req.user.userType === 1) return true;
-		else res.status(400).json({
-			status: { success: false, message: `권한이 부족합니다.` }
+		else res.status(200).json({
+			status: { success: Code.BAD_REQUEST, message: `권한이 부족합니다.` }
 		}).end();
 	},
 }

@@ -8,10 +8,12 @@ const ac = require('../utils/accountcheck');
 const fc = require('../utils/filecheck');
 const cc = require('../utils/coursecheck.js');
 
+const Code = require('../config/status');
+
 const router = express.Router();
 
 router.post('/:courseKey/join', (req, res) => {
-	res.statusCode = 500;
+	let code = Code.SERVER_ERROR;
 	if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
 		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(c => {
 			if (c) return models.CourseManager.create({
@@ -19,25 +21,22 @@ router.post('/:courseKey/join', (req, res) => {
 				courseKey: Number(req.params.courseKey),
 				status: Number(req.body.status)
 			});
-			else {
-				res.statusCode = 404;
-				throw new Error('존재하지 않는 강좌입니다.');
-			}
+			code = Code.NOT_FOUND;
+			throw new Error('존재하지 않는 강좌입니다.');
 		}).then(m => {
-			res.statusCode = 200;
-			res.json({
-				status: { success: true, message: '강좌 신청에 성공하였습니다.' }
+			res.status(200).json({
+				status: { success: Code.OK, message: '강좌 신청에 성공하였습니다.' }
 			}).end();
 		}).catch(e => {
-			res.json({
-				status: { success: false, message: e.messege }
+			res.status(200).json({
+				status: { success: code, message: e.messege }
 			}).end();
 		});
 	}
 });
 
 router.get('/list', (req, res) => {
-	res.statusCode = 500;
+	let code = Code.SERVER_ERROR;
 	let query = new Object();
 	query.$and = new Array();
 	if (req.query.courseKey) query.$and.push({ courseKey: Number(req.query.courseKey) });
@@ -53,32 +52,99 @@ router.get('/list', (req, res) => {
 		]
 	}).then(courseManagers => {
 		if (courseManagers.length > 0) return courseManagers;
-		else {
-			res.statusCode = 404;
-			throw new Error('조회된 강좌 수강 상태가 없습니다.');
-		}
+		code = Code.NOT_FOUND;
+		throw new Error('조회된 강좌 수강 상태가 없습니다.');
 	}).then(courseManagers => {
-		res.statusCode = 200;
-		res.json({
-			status: { success: true, message: '강좌 수강 상태 조회에 성공하였습니다.' }
+		res.status(200).json({
+			status: { success: Code.OK, message: '강좌 수강 상태 리스트 조회에 성공하였습니다.' },
+			courseManagers: courseManagers
 		}).end();
 	}).catch(e => {
-		res.json({
-			status: { success: false, message: e.message }
+		res.status(200).json({
+			status: { success: code, message: e.message },
+			courseManagers: null
 		}).end();
 	});
 });
 
 router.get('/:managerKey', (req, res) => {
-
+	let code = Code.SERVER_ERROR;
+	models.CourseManager.findOne({
+		where: { managerKey: req.params.managerKey },
+		include: [
+			{ model: models.User, attributes: ['userId', 'userName'] },
+			{ model: models.Course, attributes: ['courseKey', 'title'] }
+		]
+	}).then(courseManager => {
+		if (courseManager) return courseManager;
+		code = Code.NOT_FOUND;
+		throw new Error('조회된 강좌 수강 상태가 없습니다.');
+	}).then(courseManager => {
+		res.status(200).json({
+			status: { success: Code.OK, message: '강좌 수강 상태 조회에 성공하였습니다.' },
+			courseManager: courseManager
+		}).end();
+	}).catch(e => {
+		res.status(200).json({
+			status: { success: code, message: e.message },
+			courseManager: null
+		}).end();
+	});
 });
 
 router.put('/:managerKey', (req, res) => {
+	let code = Code.SERVER_ERROR;
+	let bodyData = JSON.parse(req.body.data);
+	let data = {}
 
+	if (bodyData.status) data.status = Number(bodyData.status);
+
+	if (ac.checkLogin(req, res)) {
+		models.CourseManager.findOne({ where: { managerKey: req.params.managerKey } }).then(courseManager => {
+			if (courseManager && (courseManager.userId === req.user.userId))
+				return models.CourseManager.update(data, { where: { managerKey: req.params.managerKey } });
+			code = Code.NOT_FOUND;
+			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
+		}).then(r => {
+			return models.CourseManager.findOne({
+				where: { managerKey: req.params.managerKey },
+				include: [
+					{ model: models.User, attributes: ['userId', 'userName'] },
+					{ model: models.Course, attributes: ['courseKey', 'title'] }
+				]
+			});
+		}).then(courseManager => {
+			res.status(200).json({
+				status: { success: Code.OK, message: '정상적으로 업데이트되었습니다.' },
+				courseManager: courseManager
+			}).end();
+		}).catch(e => {
+			res.status(200).json({
+				status: { success: code, message: e.message },
+				courseManager: null
+			}).end();
+		});
+	}
 });
 
 router.delete('/:managerKey', (req, res) => {
-
+	let code = Code.SERVER_ERROR;
+	if (ac.checkLogin(req, res)) {
+		models.CourseManager.findOne({ where: { managerKey: req.params.managerKey } }).then(courseManager => {
+			if (courseManager && (courseManager.userId === req.user.userId))
+				return models.CourseManager.destroy({ where: { managerKey: req.params.managerKey } });
+			code = Code.NOT_FOUND;
+			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
+		}).then(() => {
+			res.status(200).json({
+				status: { success: Code.OK, message: '정상적으로 삭제되었습니다.' }
+			}).end();
+		}).catch(e => {
+			res.status(200).json({
+				status: { success: code, message: e.message }
+			}).end();
+		});
+	}
 });
 
 module.exports = router;
