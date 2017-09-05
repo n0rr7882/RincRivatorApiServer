@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         userType: {
             field: 'user_type',
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false
         }
     }, {

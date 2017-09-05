@@ -14,7 +14,7 @@ module.exports = {
 			[data.localDistrict, `구를 확인해 주세요.`, /^(?=.*)[^\s]{1,10}구$/],
 			[data.localTown, `동을 확인해 주세요.`, /^(?=.*)[^\s]{1,10}동$/],
 			[data.subject, `관심과목을 확인해 주세요.`, /^(?=.*).{1,20}$/],
-			[data.userType, '계정 종류가 올바르지 않습니다.', /^(?=.*)[1-3]{1}$/]
+			[data.userType, '계정 종류가 올바르지 않습니다.', /^(student|teacher)$/]
 		];
 		for (let i in cl) {
 			if ((cl[i][0] || isStrict) && !cl[i][2].test(cl[i][0])) { // 체크리스트 검증 정규식 검사
@@ -44,19 +44,19 @@ module.exports = {
 		}
 	},
 	onlyTeacher: (req, res) => {
-		if (req.user.userType === 3) return true;
+		if (req.user.userType === 'teacher') return true;
 		else res.status(200).json({
 			status: { success: Code.BAD_REQUEST, message: `강사 회원만 이용할 수 있는 서비스입니다.` }
 		}).end();
 	},
 	onlyStudent: (req, res) => {
-		if (req.user.userType === 2) return true;
+		if (req.user.userType === 'student') return true;
 		else res.status(200).json({
 			status: { success: Code.BAD_REQUEST, message: `학생 회원만 이용할 수 있는 서비스입니다.` }
 		}).end();
 	},
 	onlyAdmin: (req, res) => {
-		if (req.user.userType === 1) return true;
+		if (req.user.userType === 'admin') return true;
 		else res.status(200).json({
 			status: { success: Code.BAD_REQUEST, message: `권한이 부족합니다.` }
 		}).end();

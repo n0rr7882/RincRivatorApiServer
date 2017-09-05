@@ -96,7 +96,7 @@ router.get('/list', (req, res) => {
   query.$and = new Array();
 
   if (req.query.subject) query.$and.push({ subject: req.query.subject });
-  if (req.query.userType) query.$and.push({ userType: Number(req.query.userType) });
+  if (req.query.userType) query.$and.push({ userType: req.query.userType });
 
   models.User.findAll({
     where: query,
