@@ -195,6 +195,7 @@ router.put('/update', (req, res) => {
 
 // 계정 삭제
 router.delete('/delete', (req, res) => {
+
   let code = Code.SERVER_ERROR;
 
   if (ac.checkLogin(req, res)) {

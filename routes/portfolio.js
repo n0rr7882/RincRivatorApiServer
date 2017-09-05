@@ -14,7 +14,7 @@ const router = express.Router();
 // 포트폴리오 생성
 router.post('/create', (req, res) => {
 	let code = Code.SERVER_ERROR;
-	let data = req.body;
+	let data = JSON.parse(req.body.data);
 	let portfolioKey;
 	let portfolioFile = (req.files && req.files.portfolioFile) ? req.files.portfolioFile : undefined;
 	let fileResult = fc.checkFile(portfolioFile);
@@ -103,7 +103,7 @@ router.get('/:portfolioKey', (req, res) => {
 router.put('/:portfolioKey/update', (req, res) => {
 	let code = Code.SERVER_ERROR;
 	let portfolioKey;
-	let data = JSON.parse(req.body);
+	let data = JSON.parse(req.body.data);
 	let portfolioFile = (req.files && req.files.portfolioFile) ? req.files.portfolioFile : undefined;
 	if (ac.checkLogin(req, res)) {
 		if (portfolioFile) data.portfolioFile = portfolioFile.name;

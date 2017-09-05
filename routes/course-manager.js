@@ -13,13 +13,15 @@ const Code = require('../config/status');
 const router = express.Router();
 
 router.post('/:courseKey/join', (req, res) => {
+
 	let code = Code.SERVER_ERROR;
+
 	if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
 		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(c => {
 			if (c) return models.CourseManager.create({
 				userId: req.user.userId,
 				courseKey: Number(req.params.courseKey),
-				status: Number(req.body.status)
+				status: 0
 			});
 			code = Code.NOT_FOUND;
 			throw new Error('존재하지 않는 강좌입니다.');
@@ -36,12 +38,15 @@ router.post('/:courseKey/join', (req, res) => {
 });
 
 router.get('/list', (req, res) => {
+
 	let code = Code.SERVER_ERROR;
 	let query = new Object();
 	query.$and = new Array();
+
 	if (req.query.courseKey) query.$and.push({ courseKey: Number(req.query.courseKey) });
 	if (req.query.userId) query.$and.push({ userId: req.query.userId });
 	if (req.query.status) query.$and.push({ status: Number(req.query.status) });
+
 	models.CourseManager.findAll({
 		where: query,
 		offset: Number(req.query.offset) * Number(req.query.limit),
@@ -68,7 +73,9 @@ router.get('/list', (req, res) => {
 });
 
 router.get('/:managerKey', (req, res) => {
+
 	let code = Code.SERVER_ERROR;
+
 	models.CourseManager.findOne({
 		where: { managerKey: req.params.managerKey },
 		include: [
@@ -93,6 +100,7 @@ router.get('/:managerKey', (req, res) => {
 });
 
 router.put('/:managerKey', (req, res) => {
+
 	let code = Code.SERVER_ERROR;
 	let bodyData = JSON.parse(req.body.data);
 	let data = {}
@@ -128,7 +136,9 @@ router.put('/:managerKey', (req, res) => {
 });
 
 router.delete('/:managerKey', (req, res) => {
+
 	let code = Code.SERVER_ERROR;
+
 	if (ac.checkLogin(req, res)) {
 		models.CourseManager.findOne({ where: { managerKey: req.params.managerKey } }).then(courseManager => {
 			if (courseManager && (courseManager.userId === req.user.userId))
