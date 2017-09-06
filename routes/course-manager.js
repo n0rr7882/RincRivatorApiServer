@@ -1,18 +1,14 @@
 const express = require('express');
-const mkdirp = require('mkdirp-promise');
-const rimraf = require('rimraf-promise');
 
 const models = require('../models');
 
 const ac = require('../utils/accountcheck');
-const fc = require('../utils/filecheck');
-const cc = require('../utils/coursecheck.js');
 
 const Code = require('../config/status');
 
 const router = express.Router();
 
-router.post('/:courseKey/join', (req, res) => {
+router.post('/:courseKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 
@@ -40,8 +36,8 @@ router.post('/:courseKey/join', (req, res) => {
 router.get('/list', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
-	let query = new Object();
-	query.$and = new Array();
+	let query = {};
+	query.$and = [];
 
 	if (req.query.courseKey) query.$and.push({ courseKey: Number(req.query.courseKey) });
 	if (req.query.userId) query.$and.push({ userId: req.query.userId });
@@ -103,7 +99,7 @@ router.put('/:managerKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let bodyData = JSON.parse(req.body.data);
-	let data = {}
+	let data = {};
 
 	if (bodyData.status) data.status = Number(bodyData.status);
 
@@ -114,22 +110,12 @@ router.put('/:managerKey', (req, res) => {
 			code = Code.NOT_FOUND;
 			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
 		}).then(r => {
-			return models.CourseManager.findOne({
-				where: { managerKey: req.params.managerKey },
-				include: [
-					{ model: models.User, attributes: ['userId', 'userName'] },
-					{ model: models.Course, attributes: ['courseKey', 'title'] }
-				]
-			});
-		}).then(courseManager => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '정상적으로 업데이트되었습니다.' },
-				courseManager: courseManager
+				status: { success: Code.OK, message: '정상적으로 업데이트되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
-				status: { success: code, message: e.message },
-				courseManager: null
+				status: { success: code, message: e.message }
 			}).end();
 		});
 	}

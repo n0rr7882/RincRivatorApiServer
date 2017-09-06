@@ -12,12 +12,21 @@ const Code = require('../config/status');
 const router = express.Router();
 
 // 포트폴리오 생성
-router.post('/create', (req, res) => {
+router.post('/', (req, res) => {
+
+    if (!req.body.data) {
+        res.status(200).json({
+            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+        });
+        return;
+    }
+
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
 	let portfolioKey;
 	let portfolioFile = (req.files && req.files.portfolioFile) ? req.files.portfolioFile : undefined;
 	let fileResult = fc.checkFile(portfolioFile);
+
 	if (!fileResult.isExist) {
 		res.status(200).json({
 			status: { success: Code.BAD_REQUEST, message: '포트폴리오 파일이 필요합니다.' }
@@ -100,9 +109,8 @@ router.get('/:portfolioKey', (req, res) => {
 });
 
 // 포트폴리오 수정
-router.put('/:portfolioKey/update', (req, res) => {
+router.put('/:portfolioKey', (req, res) => {
 	let code = Code.SERVER_ERROR;
-	let portfolioKey;
 	let data = JSON.parse(req.body.data);
 	let portfolioFile = (req.files && req.files.portfolioFile) ? req.files.portfolioFile : undefined;
 	if (ac.checkLogin(req, res)) {
@@ -141,7 +149,7 @@ router.put('/:portfolioKey/update', (req, res) => {
 });
 
 // 포트폴리오 삭제
-router.delete('/:portfolioKey/delete', (req, res) => {
+router.delete('/:portfolioKey', (req, res) => {
 	let code = Code.SERVER_ERROR;
 	if (ac.checkLogin(req, res)) {
 		models.Portfolio.findOne({

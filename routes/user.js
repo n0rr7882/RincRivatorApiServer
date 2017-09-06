@@ -1,7 +1,6 @@
 const express = require('express');
 const mkdirp = require('mkdirp-promise');
 const rimraf = require('rimraf-promise');
-const passport = require('passport');
 
 const models = require('../models');
 
@@ -12,44 +11,17 @@ const Code = require('../config/status');
 
 const router = express.Router();
 
-// 로그인
-router.post('/login', (req, res) => {
-
-  passport.authenticate('local', (e, user, info) => {
-    if (e)
-      res.status(200).json({
-        status: { success: Code.SERVER_ERROR, message: e.message },
-        user: null
-      }).end();
-    else if (info)
-      res.status(200).json({
-        status: { success: Code.BAD_REQUEST, message: info.message },
-        user: null
-      }).end();
-    else if (user)
-      req.logIn(user, e => {
-        if (e) res.status(200).json({
-          status: { success: Code.SERVER_ERROR, message: e.message },
-          user: null
-        }).end();
-        else res.status(200).json({
-          status: { success: Code.OK, message: `로그인에 성공하였습니다.` },
-          user: user
-        }).end();
-      });
-  })(req, res);
-});
-
-// 로그아웃
-router.get('/logout', (req, res) => {
-  req.logOut();
-  res.status(200).json({
-    status: { success: Code.OK, message: `정상적으로 로그아웃 되었습니다.` }
-  }).end();
-});
 
 // 회원가입
-router.post('/register', (req, res) => {
+router.post('/', (req, res) => {
+
+    if (!req.body.data) {
+        res.status(200).json({
+            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+        });
+        return;
+    }
+
   let code = Code.SERVER_ERROR;
   let data = JSON.parse(req.body.data);
   let profileImage = (req.files && req.files.profileImage) ? req.files.profileImage : undefined;
@@ -105,7 +77,7 @@ router.get('/list', (req, res) => {
     attributes: { exclude: ['userPw', 'salt'] }
   }).then(users => {
     if (users.length > 0) return users;
-    let code = Code.NOT_FOUND;
+    code = Code.NOT_FOUND;
     throw new Error(`조회된 계정이 없습니다.`);
   }).then(users => {
     res.status(200).json({
@@ -145,7 +117,7 @@ router.get('/:userId', (req, res) => {
 });
 
 // 계정 수정
-router.put('/update', (req, res) => {
+router.put('/', (req, res) => {
   let code = Code.SERVER_ERROR;
   let bodyData = JSON.parse(req.body.data);
   let data = {};
@@ -194,7 +166,7 @@ router.put('/update', (req, res) => {
 });
 
 // 계정 삭제
-router.delete('/delete', (req, res) => {
+router.delete('/', (req, res) => {
 
   let code = Code.SERVER_ERROR;
 

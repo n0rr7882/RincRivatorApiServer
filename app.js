@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -43,10 +42,12 @@ app.use(passport.initialize()); // passport 구동
 app.use(passport.session()); // 세션 연결
 passportUtil();
 
+app.use('/sign', require('./routes/sign'));
 app.use('/users', require('./routes/user'));
 app.use('/portfolios', require('./routes/portfolio'));
 app.use('/courses', require('./routes/course'));
 app.use('/course-managers', require('./routes/course-manager'));
+app.use('/course-reviews', require('./routes/course-review'));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

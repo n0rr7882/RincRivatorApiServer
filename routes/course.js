@@ -13,7 +13,14 @@ const Code = require('../config/status');
 
 const router = express.Router();
 
-router.post('/create', (req, res) => {
+router.post('/', (req, res) => {
+
+    if (!req.body.data) {
+        res.status(200).json({
+            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+        });
+        return;
+    }
 
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
@@ -59,8 +66,8 @@ router.post('/create', (req, res) => {
 router.get('/list', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
-	let query = new Object();
-	query.$and = new Array();
+	let query = {};
+	query.$and = [];
 
 	if (req.query.category) query.$and.push({ category: req.query.category });
 	if (req.query.userId) query.$and.push({ userId: req.query.userId });
@@ -98,7 +105,7 @@ router.get('/:courseKey', (req, res) => {
 		include: [{ model: models.User, attributes: ['userId', 'userName'] }]
 	}).then(course => {
 		if (course) return course;
-		code = Code.NOT_FOUND
+		code = Code.NOT_FOUND;
 		throw new Error('조회된 강좌가 없습니다.');
 	}).then(course => {
 		res.status(200).json({
@@ -114,12 +121,11 @@ router.get('/:courseKey', (req, res) => {
 });
 
 // 강좌 수정
-router.put('/:courseKey/update', (req, res) => {
+router.put('/:courseKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
-	let courseKey;
-	let courseImage = (req.files && req.files.courseImage) ? req.files.courseImage : undefined;
+    let courseImage = (req.files && req.files.courseImage) ? req.files.courseImage : undefined;
 
 	if (ac.checkLogin(req, res) && cc.checkCourse(data, res, false)) {
 		models.Course.findOne({
@@ -158,7 +164,7 @@ router.put('/:courseKey/update', (req, res) => {
 	}
 });
 
-router.delete('/:courseKey/delete', (req, res) => {
+router.delete('/:courseKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 
