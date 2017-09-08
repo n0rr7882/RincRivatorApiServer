@@ -10,26 +10,23 @@ const router = express.Router();
 
 router.post('/:contestKey', (req, res) => {
 
-    if (!req.body.data) {
-        res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
-        });
-        return;
-    }
-
     let code = Code.SERVER_ERROR;
-    let data = JSON.parse(req.body.data);
 
     if (ac.checkLogin(req, res)) {
-        models.Project.findOne({ where: { projectKey: Number(req.params.projectKey) } }).then(project => {
-            if (project) return models.ProjectManager.create({
-                userId: req.user.userId,
-                projectKey: Number(req.params.projectKey),
-                teamPart: data.teamPart
+        models.Contest.findOne({ where: { contestKey: Number(req.params.contestKey) } }).then(contest => {
+            if (contest) return models.ContestManager.findOne({
+                where: {contestKey: req.params.contestKey, userId: req.user.userId}
             });
             code = Code.NOT_FOUND;
-            throw new Error('존재하지 않는 프로젝트입니다.');
-        }).then(m => {
+            throw new Error('존재하지 않는 콘테스트입니다.');
+        }).then(manager => {
+            if (!manager) return models.ContestManager.create({
+                userId: req.user.userId,
+                contestKey: Number(req.params.contestKey)
+            });
+            code = Code.NOT_FOUND;
+            throw new Error('이미 참가한 콘테스트입니다.');
+        }).then(manager => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 참여되었습니다.' }
             }).end();
@@ -47,31 +44,30 @@ router.get('/', (req, res) => {
     let query = {};
     query.$and = [];
 
-    if (req.query.projectKey) query.$and.push({ projectKey: Number(req.query.projectKey) });
+    if (req.query.contestKey) query.$and.push({ contestKey: Number(req.query.contestKey) });
     if (req.query.userId) query.$and.push({ userId: req.query.userId });
-    if (req.query.teamPart) query.$and.push({ teamPart: req.query.teamPart });
 
-    models.ProjectManager.findAll({
+    models.ContestManager.findAll({
         where: query,
         offset: Number(req.query.offset) * Number(req.query.limit),
         limit: Number(req.query.limit),
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Project, attributes: ['projectKey', 'title'] }
+            { model: models.Contest, attributes: ['contestKey', 'title'] }
         ]
-    }).then(projectManagers => {
-        if (projectManagers.length > 0) return projectManagers;
+    }).then(contestManagers => {
+        if (contestManagers.length > 0) return contestManagers;
         code = Code.NOT_FOUND;
-        throw new Error('조회된 프로젝트 참여 상태가 없습니다.');
-    }).then(projectManagers => {
+        throw new Error('조회된 콘테스트 참여 상태가 없습니다.');
+    }).then(contestManagers => {
         res.status(200).json({
             status: { success: Code.OK, message: '조회에 성공하였습니다.' },
-            projectManagers: projectManagers
+            contestManagers: contestManagers
         }).end();
     }).catch(e => {
         res.status(200).json({
             status: { success: code, message: e.message },
-            projectManagers: null
+            contestManagers: null
         }).end();
     });
 });
@@ -80,53 +76,27 @@ router.get('/:managerKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
 
-    models.ProjectManager.findOne({
+    models.ContestManager.findOne({
         where: { managerKey: req.params.managerKey },
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Project, attributes: ['projectKey', 'title'] }
+            { model: models.Contest, attributes: ['contestKey', 'title'] }
         ]
-    }).then(projectManager => {
-        if (projectManager) return projectManager;
+    }).then(contestManager => {
+        if (contestManager) return contestManager;
         code = Code.NOT_FOUND;
-        throw new Error('조회된 프로젝트 참여 상태가 없습니다.');
-    }).then(projectManager => {
+        throw new Error('조회된 콘테스트 참여 상태가 없습니다.');
+    }).then(contestManager => {
         res.status(200).json({
             status: { success: Code.OK, message: '조회에 성공하였습니다.' },
-            projectManager: projectManager
+            contestManager: contestManager
         }).end();
     }).catch(e => {
         res.status(200).json({
             status: { success: code, message: e.message },
-            projectManager: null
+            contestManager: null
         }).end();
     });
-});
-
-router.put('/:managerKey', (req, res) => {
-
-    let code = Code.SERVER_ERROR;
-    let bodyData = JSON.parse(req.body.data);
-    let data = {};
-
-    if (bodyData.teamPart) data.teamPart = bodyData.teamPart;
-
-    if (ac.checkLogin(req, res)) {
-        models.ProjectManager.findOne({ where: { managerKey: req.params.managerKey } }).then(projectManager => {
-            if (projectManager && (projectManager.userId === req.user.userId))
-                return models.ProjectManager.update(data, { where: { managerKey: req.params.managerKey } });
-            code = Code.NOT_FOUND;
-            throw new Error('조회된 프로젝트 참여 상태나 권한이 없습니다.');
-        }).then(r => {
-            res.status(200).json({
-                status: { success: Code.OK, message: '성공적으로 업데이트되었습니다.' }
-            }).end();
-        }).catch(e => {
-            res.status(200).json({
-                status: { success: code, message: e.message }
-            }).end();
-        });
-    }
 });
 
 router.delete('/:managerKey', (req, res) => {
@@ -134,11 +104,11 @@ router.delete('/:managerKey', (req, res) => {
     let code = Code.SERVER_ERROR;
 
     if (ac.checkLogin(req, res)) {
-        models.ProjectManager.findOne({ where: { managerKey: req.params.managerKey } }).then(projectManager => {
-            if (projectManager && (projectManager.userId === req.user.userId))
-                return projectManager.destroy();
+        models.ContestManager.findOne({ where: { managerKey: req.params.managerKey } }).then(contestManager => {
+            if (contestManager && (contestManager.userId === req.user.userId))
+                return contestManager.destroy();
             code = Code.NOT_FOUND;
-            throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
+            throw new Error('조회된 콘테스트 참여 상태나 권한이 없습니다.');
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }

@@ -13,21 +13,27 @@ router.post('/:courseKey', (req, res) => {
 	let code = Code.SERVER_ERROR;
 
 	if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
-		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(c => {
-			if (c) return models.CourseManager.create({
-				userId: req.user.userId,
-				courseKey: Number(req.params.courseKey),
-				status: 0
-			});
-			code = Code.NOT_FOUND;
-			throw new Error('존재하지 않는 강좌입니다.');
-		}).then(m => {
+		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(course => {
+            if (course) models.CourseManager.findOne({
+                where: {courseKey: req.params.courseKey, userId: req.user.userId }
+            });
+            code = Code.NOT_FOUND;
+            throw new Error('존재하지 않는 강좌입니다.');
+        }).then(manager => {
+            if (!manager) return models.CourseManager.create({
+                userId: req.user.userId,
+                courseKey: Number(req.params.courseKey),
+                status: 0
+            });
+            code = Code.NOT_FOUND;
+            throw new Error('이미 신청한 강좌입니다.');
+		}).then(manager => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 신청되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
-				status: { success: code, message: e.messege }
+				status: { success: code, message: e.message }
 			}).end();
 		});
 	}
