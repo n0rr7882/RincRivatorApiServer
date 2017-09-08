@@ -15,12 +15,12 @@ const router = express.Router();
 
 router.post('/', (req, res) => {
 
-    if (!req.body.data) {
-        res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
-        });
-        return;
-    }
+	if (!req.body.data) {
+		res.status(200).json({
+			status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
+		});
+		return;
+	}
 
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
@@ -78,7 +78,8 @@ router.get('/', (req, res) => {
 		where: query,
 		offset: Number(req.query.offset) * Number(req.query.limit),
 		limit: Number(req.query.limit),
-		include: [{ model: models.User, attributes: ['userId', 'userName'] }]
+		include: [{ model: models.User, attributes: ['userId', 'userName'] }],
+		order: [['created_at', 'DESC']]
 	}).then(courses => {
 		if (courses.length > 0) return courses;
 		code = Code.NOT_FOUND;
@@ -125,7 +126,7 @@ router.put('/:courseKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
-    let courseImage = (req.files && req.files.courseImage) ? req.files.courseImage : undefined;
+	let courseImage = (req.files && req.files.courseImage) ? req.files.courseImage : undefined;
 
 	if (ac.checkLogin(req, res) && cc.checkCourse(data, res, false)) {
 		models.Course.findOne({

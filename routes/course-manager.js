@@ -14,19 +14,19 @@ router.post('/:courseKey', (req, res) => {
 
 	if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
 		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(course => {
-            if (course) models.CourseManager.findOne({
-                where: {courseKey: req.params.courseKey, userId: req.user.userId }
-            });
-            code = Code.NOT_FOUND;
-            throw new Error('존재하지 않는 강좌입니다.');
-        }).then(manager => {
-            if (!manager) return models.CourseManager.create({
-                userId: req.user.userId,
-                courseKey: Number(req.params.courseKey),
-                status: 0
-            });
-            code = Code.NOT_FOUND;
-            throw new Error('이미 신청한 강좌입니다.');
+			if (course) models.CourseManager.findOne({
+				where: { courseKey: req.params.courseKey, userId: req.user.userId }
+			});
+			code = Code.NOT_FOUND;
+			throw new Error('존재하지 않는 강좌입니다.');
+		}).then(manager => {
+			if (!manager) return models.CourseManager.create({
+				userId: req.user.userId,
+				courseKey: Number(req.params.courseKey),
+				status: 0
+			});
+			code = Code.NOT_FOUND;
+			throw new Error('이미 신청한 강좌입니다.');
 		}).then(manager => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 신청되었습니다.' }
@@ -56,7 +56,8 @@ router.get('/', (req, res) => {
 		include: [
 			{ model: models.User, attributes: ['userId', 'userName'] },
 			{ model: models.Course, attributes: ['courseKey', 'title'] }
-		]
+		],
+		order: [['created_at', 'DESC']]
 	}).then(courseManagers => {
 		if (courseManagers.length > 0) return courseManagers;
 		code = Code.NOT_FOUND;

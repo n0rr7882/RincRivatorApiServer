@@ -12,7 +12,7 @@ router.post('/:projectKey', (req, res) => {
 
     if (!req.body.data) {
         res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+            status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
         });
         return;
     }
@@ -23,7 +23,7 @@ router.post('/:projectKey', (req, res) => {
     if (ac.checkLogin(req, res)) {
         models.Project.findOne({ where: { projectKey: Number(req.params.projectKey) } }).then(project => {
             if (project) return models.ProjectManager.findOne({
-                where: {projectKey: req.params.projectKey, userId: req.user.userId }
+                where: { projectKey: req.params.projectKey, userId: req.user.userId }
             });
             code = Code.NOT_FOUND;
             throw new Error('존재하지 않는 프로젝트입니다.');
@@ -64,7 +64,8 @@ router.get('/', (req, res) => {
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
             { model: models.Project, attributes: ['projectKey', 'title'] }
-        ]
+        ],
+        order: [['created_at', 'DESC']]
     }).then(projectManagers => {
         if (projectManagers.length > 0) return projectManagers;
         code = Code.NOT_FOUND;

@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
 
     if (!req.body.data) {
         res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+            status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
         });
         return;
     }
@@ -72,16 +72,17 @@ router.get('/', (req, res) => {
     if (req.query.userId) query.$and.push({ userId: req.query.userId });
     if (req.query.teamName) query.$and.push({ teamName: req.query.teamName });
     if (req.query.status === 'doing') {
-        query.$and.push({ dateStart: { $lt: Date.now() }});
-        query.$and.push({ dateEnd: { $gt: Date.now() }});
+        query.$and.push({ dateStart: { $lt: Date.now() } });
+        query.$and.push({ dateEnd: { $gt: Date.now() } });
     }
-    if (req.query.status === 'before') query.$and.push({ dateStart: { $gt: Date.now() }});
-    if (req.query.status === 'finished') query.$and.push({ dateEnd: { $lt: Date.now() }});
+    if (req.query.status === 'before') query.$and.push({ dateStart: { $gt: Date.now() } });
+    if (req.query.status === 'finished') query.$and.push({ dateEnd: { $lt: Date.now() } });
     models.Contest.findAll({
         where: query,
         offset: Number(req.query.offset) * Number(req.query.limit),
         limit: Number(req.query.limit),
-        include: [{ model: models.User, attributes: ['userId', 'userName'] }]
+        include: [{ model: models.User, attributes: ['userId', 'userName'] }],
+        order: [['created_at', 'DESC']]
     }).then(contests => {
         if (contests.length > 0) return contests;
         code = Code.NOT_FOUND;
@@ -170,7 +171,7 @@ router.put('/:contestKey', (req, res) => {
     }
 });
 
-router.delete('/:contestKey', function(req, res) {
+router.delete('/:contestKey', function (req, res) {
 
     let code = Code.SERVER_ERROR;
 

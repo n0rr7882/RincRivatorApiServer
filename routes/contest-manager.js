@@ -15,7 +15,7 @@ router.post('/:contestKey', (req, res) => {
     if (ac.checkLogin(req, res)) {
         models.Contest.findOne({ where: { contestKey: Number(req.params.contestKey) } }).then(contest => {
             if (contest) return models.ContestManager.findOne({
-                where: {contestKey: req.params.contestKey, userId: req.user.userId}
+                where: { contestKey: req.params.contestKey, userId: req.user.userId }
             });
             code = Code.NOT_FOUND;
             throw new Error('존재하지 않는 콘테스트입니다.');
@@ -54,7 +54,8 @@ router.get('/', (req, res) => {
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
             { model: models.Contest, attributes: ['contestKey', 'title'] }
-        ]
+        ],
+        order: [['created_at', 'DESC']]
     }).then(contestManagers => {
         if (contestManagers.length > 0) return contestManagers;
         code = Code.NOT_FOUND;

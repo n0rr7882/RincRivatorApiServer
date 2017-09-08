@@ -12,7 +12,7 @@ router.post('/:courseKey', (req, res) => {
 
     if (!req.body.data) {
         res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+            status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
         });
         return;
     }
@@ -54,7 +54,8 @@ router.get('/', (req, res) => {
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
             { model: models.Course, attributes: ['courseKey', 'title'] }
-        ]
+        ],
+        order: [['created_at', 'DESC']]
     }).then(courseReviews => {
         if (courseReviews.length > 0) return courseReviews;
         code = Code.NOT_FOUND;

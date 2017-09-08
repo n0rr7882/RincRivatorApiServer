@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
 
     if (!req.body.data) {
         res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
+            status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
         });
         return;
     }
@@ -71,14 +71,15 @@ router.get('/', (req, res) => {
     if (req.query.category) query.$and.push({ category: req.query.category });
     if (req.query.userId) query.$and.push({ userId: req.query.userId });
     if (req.query.teamName) query.$and.push({ teamName: req.query.teamName });
-    if (req.query.date === 'gt') query.$and.push({ date: { $gt: Date.now() }});
-    if (req.query.date === 'lt') query.$and.push({ date: { $lt: Date.now() }});
+    if (req.query.date === 'gt') query.$and.push({ date: { $gt: Date.now() } });
+    if (req.query.date === 'lt') query.$and.push({ date: { $lt: Date.now() } });
 
     models.Project.findAll({
         where: query,
         offset: Number(req.query.offset) * Number(req.query.limit),
         limit: Number(req.query.limit),
-        include: [{ model: models.User, attributes: ['userId', 'userName'] }]
+        include: [{ model: models.User, attributes: ['userId', 'userName'] }],
+        order: [['created_at', 'DESC']]
     }).then(projects => {
         if (projects.length > 0) return projects;
         code = Code.NOT_FOUND;

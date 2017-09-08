@@ -14,12 +14,12 @@ const router = express.Router();
 // 포트폴리오 생성
 router.post('/', (req, res) => {
 
-    if (!req.body.data) {
-        res.status(200).json({
-            status: {success: Code.BAD_REQUEST, message: '잘못된 요청입니다.'}
-        });
-        return;
-    }
+	if (!req.body.data) {
+		res.status(200).json({
+			status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
+		});
+		return;
+	}
 
 	let code = Code.SERVER_ERROR;
 	let data = JSON.parse(req.body.data);
@@ -67,7 +67,8 @@ router.get('/', (req, res) => {
 		where: query,
 		offset: Number(req.query.offset) * Number(req.query.limit),
 		limit: Number(req.query.limit),
-		include: [{ model: models.User, attributes: ['userId', 'userName'] }]
+		include: [{ model: models.User, attributes: ['userId', 'userName'] }],
+		order: [['created_at', 'DESC']]
 	}).then(portfolios => {
 		if (portfolios.length > 0) return portfolios;
 		code = Code.NOT_FOUND;
