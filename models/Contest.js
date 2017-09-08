@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     const Contest = sequelize.define('Contest', {
         contestKey: {
             field: 'contest_key',
-            type: DataTypes.INTEGER({ length: 11 }),
+            type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true,
             autoIncrement: true
@@ -17,9 +17,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        category: {
+            field: 'category',
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         priseNum: {
             field: 'prise_num',
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         description: {
@@ -29,12 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         fieldEntry: {
             field: 'field_entry',
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false
         },
         criteria: {
             field: 'criteria',
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false
         },
         award: {
@@ -43,18 +48,13 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         dateStart: {
-            field: 'date_start',
+            field: 'start_time',
             type: DataTypes.DATE,
             allowNull: false
         },
         dateEnd: {
-            field: 'date_end',
+            field: 'end_time',
             type: DataTypes.DATE,
-            allowNull: false
-        },
-        status: {
-            field: 'status',
-            type: DataTypes.INTEGER,
             allowNull: false
         }
     }, {

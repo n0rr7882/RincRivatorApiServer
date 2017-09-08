@@ -48,7 +48,7 @@ router.post('/', (req, res) => {
 			return portfolioFile.mv(`./public/portfolios/${portfolioKey}/${portfolioFile.name}`)
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: `포트폴리오 업로드 성공.` }
+				status: { success: Code.OK, message: `성공적으로 생성되었습니다.` }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
 });
 
 // 포트폴리오 리스트 출력
-router.get('/list', (req, res) => {
+router.get('/', (req, res) => {
 	let code = Code.SERVER_ERROR;
 	let query = new Object();
 	if (req.query.userId) query.userId = req.query.userId;
@@ -74,7 +74,7 @@ router.get('/list', (req, res) => {
 		throw new Error('조회된 포트폴리오가 없습니다.');
 	}).then(portfolios => {
 		res.status(200).json({
-			status: { success: Code.OK, message: `포트폴리오 리스트 조회에 성공하였습니다.` },
+			status: { success: Code.OK, message: `조회에 성공하였습니다.` },
 			portfolios: portfolios
 		}).end();
 	}).catch(e => {
@@ -97,7 +97,7 @@ router.get('/:portfolioKey', (req, res) => {
 		throw new Error('조회된 포트폴리오가 없습니다.');
 	}).then(portfolio => {
 		res.json({
-			status: { success: Code.OK, message: `포트폴리오 조회에 성공하였습니다.` },
+			status: { success: Code.OK, message: `조회에 성공하였습니다.` },
 			portfolio: portfolio
 		}).end();
 	}).catch(e => {
@@ -138,7 +138,7 @@ router.put('/:portfolioKey', (req, res) => {
 			}
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: `정상적으로 업데이트되었습니다.` }
+				status: { success: Code.OK, message: `성공적으로 업데이트되었습니다.` }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -162,7 +162,7 @@ router.delete('/:portfolioKey', (req, res) => {
 			return rimraf(`./public/portfolios/${req.params.portfolioKey}`);
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: `정상적으로 처리되었습니다.` }
+				status: { success: Code.OK, message: `성공적으로 삭제되었습니다.` }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({

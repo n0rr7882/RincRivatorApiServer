@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
       }
     }).then(() => {
       res.status(200).json({
-        status: { success: Code.OK, message: `정상적으로 생성되었습니다.` }
+        status: { success: Code.OK, message: `성공적으로 생성되었습니다.` }
       }).end();
     }).catch(e => {
       res.status(200).json({
@@ -62,7 +62,7 @@ router.post('/', (req, res) => {
 });
 
 // 계정 리스트
-router.get('/list', (req, res) => {
+router.get('/', (req, res) => {
   let code = Code.SERVER_ERROR;
   let query = new Object();
   query.$and = new Array();
@@ -81,7 +81,7 @@ router.get('/list', (req, res) => {
     throw new Error(`조회된 계정이 없습니다.`);
   }).then(users => {
     res.status(200).json({
-      status: { success: Code.OK, message: `계정 리스트 조회에 성공하였습니다.` },
+      status: { success: Code.OK, message: `조회에 성공하였습니다.` },
       users: users
     }).end();
   }).catch(e => {
@@ -105,7 +105,7 @@ router.get('/:userId', (req, res) => {
     throw new Error(`존재하지 않는 계정입니다.`);
   }).then(user => {
     res.status(200).json({
-      status: { success: Code.OK, message: `계정 조회에 성공하였습니다.` },
+      status: { success: Code.OK, message: `조회에 성공하였습니다.` },
       user: user
     }).end();
   }).catch(e => {
@@ -153,7 +153,7 @@ router.put('/', (req, res) => {
       return models.User.findOne({ where: { userId: req.user.userId } });
     }).then(user => {
       res.status(200).json({
-        status: { success: Code.OK, message: `정상적으로 업데이트되었습니다.` },
+        status: { success: Code.OK, message: `성공적으로 업데이트되었습니다.` },
         user: user
       }).end();
     }).catch(e => {
@@ -177,7 +177,7 @@ router.delete('/', (req, res) => {
     }).then(() => {
       req.logOut();
       res.status(200).json({
-        status: { success: Code.OK, message: `계정이 정상적으로 삭제되었습니다.` }
+        status: { success: Code.OK, message: `성공적으로 삭제되었습니다.` }
       }).end();
     }).catch(e => {
       res.status(200).json({

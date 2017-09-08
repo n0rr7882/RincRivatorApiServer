@@ -23,7 +23,7 @@ router.post('/:courseKey', (req, res) => {
 			throw new Error('존재하지 않는 강좌입니다.');
 		}).then(m => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '강좌 신청에 성공하였습니다.' }
+				status: { success: Code.OK, message: '성공적으로 신청되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -33,7 +33,7 @@ router.post('/:courseKey', (req, res) => {
 	}
 });
 
-router.get('/list', (req, res) => {
+router.get('/', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let query = {};
@@ -57,7 +57,7 @@ router.get('/list', (req, res) => {
 		throw new Error('조회된 강좌 수강 상태가 없습니다.');
 	}).then(courseManagers => {
 		res.status(200).json({
-			status: { success: Code.OK, message: '강좌 수강 상태 리스트 조회에 성공하였습니다.' },
+			status: { success: Code.OK, message: '조회에 성공하였습니다.' },
 			courseManagers: courseManagers
 		}).end();
 	}).catch(e => {
@@ -84,7 +84,7 @@ router.get('/:managerKey', (req, res) => {
 		throw new Error('조회된 강좌 수강 상태가 없습니다.');
 	}).then(courseManager => {
 		res.status(200).json({
-			status: { success: Code.OK, message: '강좌 수강 상태 조회에 성공하였습니다.' },
+			status: { success: Code.OK, message: '조회에 성공하였습니다.' },
 			courseManager: courseManager
 		}).end();
 	}).catch(e => {
@@ -111,7 +111,7 @@ router.put('/:managerKey', (req, res) => {
 			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
 		}).then(r => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '정상적으로 업데이트되었습니다.' }
+				status: { success: Code.OK, message: '성공적으로 업데이트되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -133,7 +133,7 @@ router.delete('/:managerKey', (req, res) => {
 			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '정상적으로 삭제되었습니다.' }
+				status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({

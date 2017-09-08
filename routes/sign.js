@@ -27,7 +27,7 @@ router.post('/login', (req, res) => {
                     user: null
                 }).end();
                 else res.status(200).json({
-                    status: { success: Code.OK, message: `로그인에 성공하였습니다.` },
+                    status: { success: Code.OK, message: `성공적으로 로그인되었습니다.` },
                     user: user
                 }).end();
             });
@@ -38,7 +38,7 @@ router.post('/login', (req, res) => {
 router.get('/logout', (req, res) => {
     req.logOut();
     res.status(200).json({
-        status: { success: Code.OK, message: `정상적으로 로그아웃 되었습니다.` }
+        status: { success: Code.OK, message: `성공적으로 로그아웃되었습니다.` }
     }).end();
 });
 

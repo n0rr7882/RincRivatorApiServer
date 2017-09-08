@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        tmPart: {
+        teamPart: {
             field: 'team_part',
             type: DataTypes.STRING,
             allowNull: false
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             underscored: true,
             freezeTableName: true,
             tableName: 'project_manager',
-            timestamps: false
+            timestamps: true
         });
     return ProjectManager;
 }

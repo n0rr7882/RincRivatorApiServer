@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
 
 	if (!imageResult.isExist) {
 		res.status(200).json({
-			status: { success: Code.NOT_FOUND, message: '배너 이미지 파일이 필요합니다.' }
+			status: { success: Code.NOT_FOUND, message: '배너 이미지가 필요합니다.' }
 		}).end();
 		return;
 	} else if (!imageResult.isAvailable) {
@@ -53,7 +53,7 @@ router.post('/', (req, res) => {
 			return courseImage.mv(`./public/courses/${courseKey}/course-image.jpg`);
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '정상적으로 생성되었습니다.' }
+				status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -63,7 +63,7 @@ router.post('/', (req, res) => {
 	}
 });
 
-router.get('/list', (req, res) => {
+router.get('/', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let query = {};
@@ -85,7 +85,7 @@ router.get('/list', (req, res) => {
 		throw new Error('조회된 강좌가 없습니다.');
 	}).then(courses => {
 		res.status(200).json({
-			status: { success: Code.OK, message: '강좌 리스트 조회에 성공하였습니다.' },
+			status: { success: Code.OK, message: '조회에 성공하였습니다.' },
 			courses: courses
 		}).end();
 	}).catch(e => {
@@ -109,7 +109,7 @@ router.get('/:courseKey', (req, res) => {
 		throw new Error('조회된 강좌가 없습니다.');
 	}).then(course => {
 		res.status(200).json({
-			status: { success: Code.OK, message: '강좌 조회에 성공하였습니다.' },
+			status: { success: Code.OK, message: '조회에 성공하였습니다.' },
 			course: course
 		}).end();
 	}).catch(e => {
@@ -154,7 +154,7 @@ router.put('/:courseKey', (req, res) => {
 			}
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '강좌 수정에 성공하였습니다.' }
+				status: { success: Code.OK, message: '성공적으로 업데이트되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({
@@ -181,7 +181,7 @@ router.delete('/:courseKey', (req, res) => {
 			return rimraf(`./public/courses/${req.params.courseKey}`);
 		}).then(() => {
 			res.status(200).json({
-				status: { success: Code.OK, message: '강좌가 정상적으로 삭제되었습니다.' }
+				status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
 			}).end();
 		}).catch(e => {
 			res.status(200).json({

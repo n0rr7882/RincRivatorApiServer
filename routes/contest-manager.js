@@ -8,7 +8,7 @@ const Code = require('../config/status');
 
 const router = express.Router();
 
-router.post('/:courseKey', (req, res) => {
+router.post('/:contestKey', (req, res) => {
 
     if (!req.body.data) {
         res.status(200).json({
@@ -19,20 +19,23 @@ router.post('/:courseKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
     let data = JSON.parse(req.body.data);
-    if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
-        data.userId = req.user.userId;
-        data.courseKey = Number(req.params.courseKey);
-        models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(c => {
-            if (c) return models.CourseReview.create(data);
+
+    if (ac.checkLogin(req, res)) {
+        models.Project.findOne({ where: { projectKey: Number(req.params.projectKey) } }).then(project => {
+            if (project) return models.ProjectManager.create({
+                userId: req.user.userId,
+                projectKey: Number(req.params.projectKey),
+                teamPart: data.teamPart
+            });
             code = Code.NOT_FOUND;
-            throw new Error('존재하지 않는 강좌입니다.');
+            throw new Error('존재하지 않는 프로젝트입니다.');
         }).then(m => {
             res.status(200).json({
-                status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
+                status: { success: Code.OK, message: '성공적으로 참여되었습니다.' }
             }).end();
         }).catch(e => {
             res.status(200).json({
-                status: { success: code, message: e.messege }
+                status: { success: code, message: e.message }
             }).end();
         });
     }
@@ -44,76 +47,76 @@ router.get('/', (req, res) => {
     let query = {};
     query.$and = [];
 
-    if (req.query.courseKey) query.$and.push({ courseKey: Number(req.query.courseKey) });
+    if (req.query.projectKey) query.$and.push({ projectKey: Number(req.query.projectKey) });
     if (req.query.userId) query.$and.push({ userId: req.query.userId });
+    if (req.query.teamPart) query.$and.push({ teamPart: req.query.teamPart });
 
-    models.CourseReview.findAll({
+    models.ProjectManager.findAll({
         where: query,
         offset: Number(req.query.offset) * Number(req.query.limit),
         limit: Number(req.query.limit),
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Course, attributes: ['courseKey', 'title'] }
+            { model: models.Project, attributes: ['projectKey', 'title'] }
         ]
-    }).then(courseReviews => {
-        if (courseReviews.length > 0) return courseReviews;
+    }).then(projectManagers => {
+        if (projectManagers.length > 0) return projectManagers;
         code = Code.NOT_FOUND;
-        throw new Error('조회된 리뷰가 없습니다.');
-    }).then(courseReviews => {
+        throw new Error('조회된 프로젝트 참여 상태가 없습니다.');
+    }).then(projectManagers => {
         res.status(200).json({
             status: { success: Code.OK, message: '조회에 성공하였습니다.' },
-            courseReviews: courseReviews
+            projectManagers: projectManagers
         }).end();
     }).catch(e => {
         res.status(200).json({
             status: { success: code, message: e.message },
-            courseReviews: null
+            projectManagers: null
         }).end();
     });
 });
 
-router.get('/:reviewKey', (req, res) => {
+router.get('/:managerKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
 
-    models.CourseReview.findOne({
-        where: { reviewKey: req.params.reviewKey },
+    models.ProjectManager.findOne({
+        where: { managerKey: req.params.managerKey },
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Course, attributes: ['courseKey', 'title'] }
+            { model: models.Project, attributes: ['projectKey', 'title'] }
         ]
-    }).then(courseReview => {
-        if (courseReview) return courseReview;
+    }).then(projectManager => {
+        if (projectManager) return projectManager;
         code = Code.NOT_FOUND;
-        throw new Error('조회된 리뷰가 없습니다.');
-    }).then(courseReview => {
+        throw new Error('조회된 프로젝트 참여 상태가 없습니다.');
+    }).then(projectManager => {
         res.status(200).json({
             status: { success: Code.OK, message: '조회에 성공하였습니다.' },
-            courseReview: courseReview
+            projectManager: projectManager
         }).end();
     }).catch(e => {
         res.status(200).json({
             status: { success: code, message: e.message },
-            courseReview: null
+            projectManager: null
         }).end();
     });
 });
 
-router.put('/:reviewKey', (req, res) => {
+router.put('/:managerKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
     let bodyData = JSON.parse(req.body.data);
     let data = {};
 
-    if (bodyData.score) data.score = Number(bodyData.score);
-    if (bodyData.content) data.content = bodyData.content;
+    if (bodyData.teamPart) data.teamPart = bodyData.teamPart;
 
     if (ac.checkLogin(req, res)) {
-        models.CourseReview.findOne({ where: { reviewKey: req.params.reviewKey } }).then(courseReview => {
-            if (courseReview && (courseReview.userId === req.user.userId))
-                return models.CourseReview.update(data, { where: { reviewKey: req.params.reviewKey } });
+        models.ProjectManager.findOne({ where: { managerKey: req.params.managerKey } }).then(projectManager => {
+            if (projectManager && (projectManager.userId === req.user.userId))
+                return models.ProjectManager.update(data, { where: { managerKey: req.params.managerKey } });
             code = Code.NOT_FOUND;
-            throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
+            throw new Error('조회된 프로젝트 참여 상태나 권한이 없습니다.');
         }).then(r => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 업데이트되었습니다.' }
@@ -126,16 +129,16 @@ router.put('/:reviewKey', (req, res) => {
     }
 });
 
-router.delete('/:reviewKey', (req, res) => {
+router.delete('/:managerKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
 
     if (ac.checkLogin(req, res)) {
-        models.CourseReview.findOne({ where: { reviewKey: req.params.reviewKey } }).then(courseReview => {
-            if (courseReview && (courseReview.userId === req.user.userId))
-                return courseReview.destroy();
+        models.ProjectManager.findOne({ where: { managerKey: req.params.managerKey } }).then(projectManager => {
+            if (projectManager && (projectManager.userId === req.user.userId))
+                return projectManager.destroy();
             code = Code.NOT_FOUND;
-            throw new Error('조회된 리뷰나 권한이 없습니다.');
+            throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
@@ -147,6 +150,5 @@ router.delete('/:reviewKey', (req, res) => {
         });
     }
 });
-
 
 module.exports = router;
