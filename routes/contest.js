@@ -10,6 +10,8 @@ const cc = require('../utils/contestcheck');
 
 const Code = require('../config/status');
 
+const auth = require('../utils/authentication');
+
 const router = express.Router();
 
 router.post('/', (req, res) => {
@@ -171,7 +173,7 @@ router.put('/:contestKey', (req, res) => {
     }
 });
 
-router.delete('/:contestKey', function (req, res) {
+router.delete('/:contestKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
 

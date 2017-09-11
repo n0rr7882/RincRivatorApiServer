@@ -176,7 +176,6 @@ router.delete('/', (req, res) => {
 		models.User.destroy({ where: { userId: req.user.userId } }).then(() => {
 			return rimraf(`./public/users/${userId}`)
 		}).then(() => {
-			req.logOut();
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 삭제되었습니다.` }
 			}).end();

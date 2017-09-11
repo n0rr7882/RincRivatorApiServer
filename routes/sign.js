@@ -1,45 +1,41 @@
 const express = require('express');
-
-const passport = require('passport');
-
+const jwt = require('jsonwebtoken');
+const password = require('../utils/password');
+const models = require('../models/index');
 const Code = require('../config/status');
+const ac = require('../utils/accountcheck');
 
 const router = express.Router();
 
 // 로그인
-router.post('/login', (req, res) => {
+router.post('/auth', (req, res) => {
+    let code = Code.SERVER_ERROR;
+    models.User.findOne({
+        where: { userId: req.body.userId }
+    }).then(user => {
+        if (!user) {
+            code = Code.NOT_FOUND;
+            throw new Error('존재하지 않는 아이디입니다.');
+        }
+        if (ac.encryptPassword(req.body.userPw, user.salt).userPw !== user.userPw) {
+            code = Code.NOT_FOUND;
+            throw new Error('암호가 일치하지 않습니다.');
+        }
+        let payload = { userId: user.userId };
+        let token = jwt.sign(payload, password.getTokenKey(), { algorithm: 'HS256' });
 
-    passport.authenticate('local', (e, user, info) => {
-        if (e)
-            res.status(200).json({
-                status: { success: Code.SERVER_ERROR, message: e.message },
-                user: null
-            }).end();
-        else if (info)
-            res.status(200).json({
-                status: { success: Code.BAD_REQUEST, message: info.message },
-                user: null
-            }).end();
-        else if (user)
-            req.logIn(user, e => {
-                if (e) res.status(200).json({
-                    status: { success: Code.SERVER_ERROR, message: e.message },
-                    user: null
-                }).end();
-                else res.status(200).json({
-                    status: { success: Code.OK, message: `성공적으로 로그인되었습니다.` },
-                    user: user
-                }).end();
-            });
-    })(req, res);
-});
-
-// 로그아웃
-router.get('/logout', (req, res) => {
-    req.logOut();
-    res.status(200).json({
-        status: { success: Code.OK, message: `성공적으로 로그아웃되었습니다.` }
-    }).end();
+        res.status(200).json({
+            status: { success: Code.OK, message: `로그인에 성공하였습니다.` },
+            user: user,
+            token: token
+        }).end();
+    }).catch(e => {
+        res.status(200).json({
+            status: { success: code, message: e.message },
+            user: null,
+            token: null
+        }).end();
+    });
 });
 
 module.exports = router;

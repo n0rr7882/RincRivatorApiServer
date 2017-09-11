@@ -5,7 +5,7 @@ const Code = require('../config/status');
 
 module.exports = {
 	checkAccount: (data, res, isStrict) => { // 계정 입력 검증
-        let cl = [ // 계정 검증 체크리스트
+		let cl = [ // 계정 검증 체크리스트
 			[data.userId, `아이디를 6 ~ 20글자 이내의 대소문자, 숫자로 맞춰주세요.`, /^(?=.*)[a-zA-Z0-9]{6,20}$/],
 			[data.userPw, `비밀번호는 6 ~ 20글자이며 대소문자, 숫자, 특수기호가 포함되어야 합니다.`, /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,20}$/],
 			[data.userName, `20글자 이내의 이름을 사용해 주세요.`, /^(?=.*)[^\s]{1,20}$/],
@@ -34,7 +34,7 @@ module.exports = {
 		}
 	},
 	checkLogin: (req, res) => {
-		if (req.isAuthenticated()) {
+		if (req.user) {
 			return true;
 		} else {
 			res.status(200).json({

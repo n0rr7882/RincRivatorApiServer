@@ -6,6 +6,8 @@ const ac = require('../utils/accountcheck');
 
 const Code = require('../config/status');
 
+const auth = require('../utils/authentication');
+
 const router = express.Router();
 
 router.post('/:contestKey', (req, res) => {

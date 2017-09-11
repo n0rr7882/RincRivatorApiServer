@@ -6,10 +6,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const session = require('express-session');
-const passport = require('passport');
-const passportUtil = require('./utils/passport');
 
 const config = require('./config/server');
+
+const auth = require('./utils/authentication');
 
 const models = require('./models');
 models.sequelize.sync({ force: config.dbReset }).then(() => {
@@ -38,9 +38,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
-app.use(passport.initialize()); // passport 구동
-app.use(passport.session()); // 세션 연결
-passportUtil();
+
+app.use(auth);
 
 app.use('/sign', require('./routes/sign'));
 app.use('/users', require('./routes/user'));
