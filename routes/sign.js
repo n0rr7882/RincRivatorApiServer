@@ -8,7 +8,7 @@ const ac = require('../utils/accountcheck');
 const router = express.Router();
 
 // 로그인
-router.post('/auth', (req, res) => {
+router.post('/login', (req, res) => {
     let code = Code.SERVER_ERROR;
     models.User.findOne({
         where: { userId: req.body.userId }
