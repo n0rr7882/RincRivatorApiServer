@@ -36,7 +36,7 @@ router.post('/login', (req, res) => {
         res.status(200).json({
             status: { success: code, message: e.message },
             user: null,
-            token: null
+            auth: null
         }).end();
     });
 });
