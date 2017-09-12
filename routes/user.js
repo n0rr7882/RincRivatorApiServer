@@ -3,7 +3,6 @@ const mkdirp = require('mkdirp-promise');
 const rimraf = require('rimraf-promise');
 
 const models = require('../models');
-
 const ac = require('../utils/accountcheck');
 const fc = require('../utils/filecheck');
 

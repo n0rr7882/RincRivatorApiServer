@@ -1,7 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+
 const password = require('../utils/password');
-const models = require('../models/index');
+const models = require('../models');
 const Code = require('../config/status');
 const ac = require('../utils/accountcheck');
 
@@ -27,7 +28,9 @@ router.post('/login', (req, res) => {
         res.status(200).json({
             status: { success: Code.OK, message: `로그인에 성공하였습니다.` },
             user: user,
-            token: token
+            auth: {
+                token: token
+            }
         }).end();
     }).catch(e => {
         res.status(200).json({
