@@ -49,9 +49,9 @@ router.post('/', (req, res) => {
         models.Contest.create(data).then(contest => {
             contestKey = contest.contestKey;
         }).then(() => {
-            return mkdirp(`./public/contests/${contestKey}`);
+            return mkdirp(`${__dirname}/../public/contests/${contestKey}`);
         }).then(() => {
-            return contestImage.mv(`./public/contests/${contestKey}/contest-image.jpg`);
+            return contestImage.mv(`${__dirname}/../public/contests/${contestKey}/contest-image.jpg`);
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
@@ -155,7 +155,7 @@ router.put('/:contestKey', (req, res) => {
             let imageResult = fc.checkImage(contestImage);
             if (imageResult.isExist) {
                 if (imageResult.isAvailable) {
-                    return contestImage.mv(`./public/contests/${req.params.contestKey}/contest-image.jpg`);
+                    return contestImage.mv(`${__dirname}/../public/contests/${req.params.contestKey}/contest-image.jpg`);
                 } else {
                     code = Code.BAD_REQUEST;
                     throw new Error('유효하지 않은 이미지 확장자 입니다.');
@@ -185,7 +185,7 @@ router.delete('/:contestKey', (req, res) => {
             code = Code.NOT_FOUND;
             throw new Error('조회된 콘테스트가 없습니다.');
         }).then(() => {
-            return rimraf(`./public/contests/${req.params.contestKey}`);
+            return rimraf(`${__dirname}/../public/contests/${req.params.contestKey}`);
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }

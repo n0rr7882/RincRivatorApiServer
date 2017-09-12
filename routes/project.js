@@ -47,9 +47,9 @@ router.post('/', (req, res) => {
         models.Project.create(data).then(project => {
             projectKey = project.projectKey;
         }).then(() => {
-            return mkdirp(`./public/projects/${projectKey}`);
+            return mkdirp(`${__dirname}/../public/projects/${projectKey}`);
         }).then(() => {
-            return projectImage.mv(`./public/projects/${projectKey}/project-image.jpg`);
+            return projectImage.mv(`${__dirname}/../public/projects/${projectKey}/project-image.jpg`);
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
@@ -147,7 +147,7 @@ router.put('/:projectKey', (req, res) => {
             let imageResult = fc.checkImage(projectImage);
             if (imageResult.isExist) {
                 if (imageResult.isAvailable) {
-                    return projectImage.mv(`./public/projects/${req.params.projectKey}/project-image.jpg`);
+                    return projectImage.mv(`${__dirname}/../public/projects/${req.params.projectKey}/project-image.jpg`);
                 } else {
                     code = Code.BAD_REQUEST;
                     throw new Error('유효하지 않은 이미지 확장자 입니다.');
@@ -177,7 +177,7 @@ router.delete('/:projectKey', (req, res) => {
             code = Code.NOT_FOUND;
             throw new Error('조회된 프로젝트가 없습니다.');
         }).then(() => {
-            return rimraf(`./public/projects/${req.params.projectKey}`);
+            return rimraf(`${__dirname}/../public/projects/${req.params.projectKey}`);
         }).then(() => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }

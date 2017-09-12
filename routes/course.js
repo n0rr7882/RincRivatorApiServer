@@ -48,9 +48,9 @@ router.post('/', (req, res) => {
 		models.Course.create(data).then(course => {
 			courseKey = course.courseKey;
 		}).then(() => {
-			return mkdirp(`./public/courses/${courseKey}`);
+			return mkdirp(`${__dirname}/../public/courses/${courseKey}`);
 		}).then(() => {
-			return courseImage.mv(`./public/courses/${courseKey}/course-image.jpg`);
+			return courseImage.mv(`${__dirname}/../public/courses/${courseKey}/course-image.jpg`);
 		}).then(() => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
@@ -147,7 +147,7 @@ router.put('/:courseKey', (req, res) => {
 			let imageResult = fc.checkImage(courseImage);
 			if (imageResult.isExist) {
 				if (imageResult.isAvailable) {
-					return courseImage.mv(`./public/courses/${req.params.courseKey}/course-image.jpg`);
+					return courseImage.mv(`${__dirname}/../public/courses/${req.params.courseKey}/course-image.jpg`);
 				} else {
 					code = Code.BAD_REQUEST;
 					throw new Error('유효하지 않은 이미지 확장자 입니다.');
@@ -179,7 +179,7 @@ router.delete('/:courseKey', (req, res) => {
 				throw new Error('조회된 강좌가 없습니다.');
 			}
 		}).then(() => {
-			return rimraf(`./public/courses/${req.params.courseKey}`);
+			return rimraf(`${__dirname}/../public/courses/${req.params.courseKey}`);
 		}).then(() => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }

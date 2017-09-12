@@ -37,12 +37,12 @@ router.post('/', (req, res) => {
 			data.salt = encrypted.salt;
 			return models.User.create(data);
 		}).then(user => {
-			return mkdirp(`./public/users/${data.userId}`)
+			return mkdirp(`${__dirname}/../public/users/${data.userId}`)
 		}).then(r => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
 				if (imageResult.isAvailable) {
-					return profileImage.mv(`./public/users/${data.userId}/profile-image.jpg`);
+					return profileImage.mv(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`);
 				} else {
 					code = Code.BAD_REQUEST;
 					throw new Error('유효하지 않은 이미지 확장자 입니다.');
@@ -143,7 +143,7 @@ router.put('/', (req, res) => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
 				if (imageResult.isAvailable) {
-					return profileImage.mv(`./public/users/${bodyData.userId}/profile-image.jpg`);
+					return profileImage.mv(`${__dirname}/../public/users/${bodyData.userId}/profile-image.jpg`);
 				} else {
 					code = Code.BAD_REQUEST;
 					throw new Error('유효하지 않은 이미지 확장자 입니다.');
@@ -173,7 +173,7 @@ router.delete('/', (req, res) => {
 	if (ac.checkLogin(req, res)) {
 		let userId = req.user.userId;
 		models.User.destroy({ where: { userId: req.user.userId } }).then(() => {
-			return rimraf(`./public/users/${userId}`)
+			return rimraf(`${__dirname}/../public/users/${userId}`)
 		}).then(() => {
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 삭제되었습니다.` }

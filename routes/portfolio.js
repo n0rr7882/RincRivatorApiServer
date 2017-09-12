@@ -43,9 +43,9 @@ router.post('/', (req, res) => {
 		data.userId = req.user.userId;
 		models.Portfolio.create(data).then(portfolio => {
 			portfolioKey = portfolio.portfolioKey;
-			return mkdirp(`./public/portfolios/${portfolioKey}`)
+			return mkdirp(`${__dirname}/../public/portfolios/${portfolioKey}`)
 		}).then(r => {
-			return portfolioFile.mv(`./public/portfolios/${portfolioKey}/${portfolioFile.name}`)
+			return portfolioFile.mv(`${__dirname}/../public/portfolios/${portfolioKey}/${portfolioFile.name}`)
 		}).then(() => {
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 생성되었습니다.` }
@@ -131,7 +131,7 @@ router.put('/:portfolioKey', (req, res) => {
 			let fileResult = fc.checkFile(portfolioFile);
 			if (fileResult.isExist) {
 				if (fileResult.isAvailable) {
-					return portfolioFile.mv(`./public/portfolios/${req.params.portfolioKey}/${portfolioFile.name}`);
+					return portfolioFile.mv(`${__dirname}/../public/portfolios/${req.params.portfolioKey}/${portfolioFile.name}`);
 				} else {
 					code = Code.BAD_REQUEST;
 					throw new Error('유효하지 않은 파일 확장자 입니다.');
@@ -160,7 +160,7 @@ router.delete('/:portfolioKey', (req, res) => {
 			code = Code.NOT_FOUND;
 			throw new Error('조회된 포트폴리오가 없거나 권한이 부족합니다.');
 		}).then(() => {
-			return rimraf(`./public/portfolios/${req.params.portfolioKey}`);
+			return rimraf(`${__dirname}/../public/portfolios/${req.params.portfolioKey}`);
 		}).then(() => {
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 삭제되었습니다.` }
