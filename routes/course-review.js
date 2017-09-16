@@ -19,14 +19,24 @@ router.post('/:courseKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
     let data = JSON.parse(req.body.data);
+    let applicationCourse = {};
     if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
         data.userId = req.user.userId;
         data.courseKey = Number(req.params.courseKey);
-        models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(c => {
-            if (c) return models.CourseReview.create(data);
+        models.Course.findOne({
+            where: { courseKey: Number(req.params.courseKey) }
+        }).then(course => {
+            if (course) {
+                applicationCourse = course;
+                return models.CourseReview.create(data);
+            }
             code = Code.NOT_FOUND;
             throw new Error('존재하지 않는 강좌입니다.');
-        }).then(m => {
+        }).then(manager => {
+            applicationCourse.numOfReviews += 1;
+            applicationCourse.score = (((applicationCourse.numOfReviews - 1) * applicationCourse.score) + data.score) / applicationCourse.numOfReviews;
+            return applicationCourse.save();
+        }).then(result => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
             }).end();
@@ -106,7 +116,6 @@ router.put('/:reviewKey', (req, res) => {
     let bodyData = JSON.parse(req.body.data);
     let data = {};
 
-    if (bodyData.score) data.score = Number(bodyData.score);
     if (bodyData.content) data.content = bodyData.content;
 
     if (ac.checkLogin(req, res)) {
@@ -130,14 +139,23 @@ router.put('/:reviewKey', (req, res) => {
 router.delete('/:reviewKey', (req, res) => {
 
     let code = Code.SERVER_ERROR;
+    let delCourseReview = {};
 
     if (ac.checkLogin(req, res)) {
         models.CourseReview.findOne({ where: { reviewKey: req.params.reviewKey } }).then(courseReview => {
-            if (courseReview && (courseReview.userId === req.user.userId))
+            if (courseReview && (courseReview.userId === req.user.userId)) {
+                delCourseReview = courseReview;
                 return courseReview.destroy();
+            }
             code = Code.NOT_FOUND;
             throw new Error('조회된 리뷰나 권한이 없습니다.');
         }).then(() => {
+            return models.Course.findOne({ courseKey: delCourseReview.courseKey });
+        }).then(course => {
+            course.numOfReviews -= 1;
+            course.score = (((course.numOfReviews + 1) * course.score) - delCourseReview.score) / course.numOfReviews;
+            return course.save();
+        }).then(result => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
             }).end();

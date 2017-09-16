@@ -143,7 +143,7 @@ router.put('/', (req, res) => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
 				if (imageResult.isAvailable) {
-					return profileImage.mv(`${__dirname}/../public/users/${bodyData.userId}/profile-image.jpg`);
+					return profileImage.mv(`${__dirname}/../public/users/${req.user.userId}/profile-image.jpg`);
 				} else {
 					code = Code.BAD_REQUEST;
 					throw new Error('유효하지 않은 이미지 확장자 입니다.');

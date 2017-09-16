@@ -44,6 +44,8 @@ router.post('/', (req, res) => {
 		data.isOpen = true;
 		data.userId = req.user.userId;
 		data.score = 0;
+		data.numOfStudent = 0;
+		data.numOfReviews = 0;
 
 		models.Course.create(data).then(course => {
 			courseKey = course.courseKey;
@@ -67,19 +69,23 @@ router.get('/', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
 	let query = {};
+	let order = [];
 	query.$and = [];
 
 	if (req.query.category) query.$and.push({ category: req.query.category });
 	if (req.query.userId) query.$and.push({ userId: req.query.userId });
 	if (req.query.isOpen === 'true') query.$and.push({ isOpen: true });
 	if (req.query.isOpen === 'false') query.$and.push({ isOpen: false });
+	if (req.query.sortBy === "score") order.push(['score', 'DESC']);
+	if (req.query.sortBy === "numOfStudents") order.push(['numOfStudents', 'DESC']);
+	order.push(['created_at', 'DESC']);
 
 	models.Course.findAll({
 		where: query,
 		offset: Number(req.query.offset) * Number(req.query.limit),
 		limit: Number(req.query.limit),
 		include: [{ model: models.User, attributes: ['userId', 'userName'] }],
-		order: [['created_at', 'DESC']]
+		order: order
 	}).then(courses => {
 		if (courses.length > 0) return courses;
 		code = Code.NOT_FOUND;

@@ -22,7 +22,7 @@ router.post('/login', (req, res) => {
             code = Code.NOT_FOUND;
             throw new Error('암호가 일치하지 않습니다.');
         }
-        let payload = { userId: user.userId };
+        let payload = { userId: user.userId, userType: user.userType };
         let token = jwt.sign(payload, password.getTokenKey(), { algorithm: 'HS256' });
 
         res.status(200).json({

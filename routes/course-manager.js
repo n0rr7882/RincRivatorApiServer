@@ -11,12 +11,18 @@ const router = express.Router();
 router.post('/:courseKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
+	let applicationCourse = {};
 
 	if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
-		models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(course => {
-			if (course) models.CourseManager.findOne({
-				where: { courseKey: req.params.courseKey, userId: req.user.userId }
-			});
+		models.Course.findOne({
+			where: { courseKey: Number(req.params.courseKey) }
+		}).then(course => {
+			if (course) {
+				applicationCourse = course;
+				return models.CourseManager.findOne({
+					where: { courseKey: req.params.courseKey, userId: req.user.userId }
+				});
+			}
 			code = Code.NOT_FOUND;
 			throw new Error('존재하지 않는 강좌입니다.');
 		}).then(manager => {
@@ -28,6 +34,9 @@ router.post('/:courseKey', (req, res) => {
 			code = Code.NOT_FOUND;
 			throw new Error('이미 신청한 강좌입니다.');
 		}).then(manager => {
+			applicationCourse.numOfStudents += 1;
+			return applicationCourse.save();
+		}).then(result => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 신청되었습니다.' }
 			}).end();

@@ -46,6 +46,18 @@ module.exports = (sequelize, DataTypes) => {
             field: 'curriculum',
             type: DataTypes.TEXT,
             allowNull: false
+        },
+        numOfStudents: {
+            field: 'num-of-students',
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: '0'
+        },
+        numOfReviews: {
+            field: 'num-of-reviews',
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: '0'
         }
     }, {
             underscored: true,
