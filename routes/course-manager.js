@@ -140,14 +140,22 @@ router.put('/:managerKey', (req, res) => {
 router.delete('/:managerKey', (req, res) => {
 
 	let code = Code.SERVER_ERROR;
+	let courseKey;
 
 	if (ac.checkLogin(req, res)) {
 		models.CourseManager.findOne({ where: { managerKey: req.params.managerKey } }).then(courseManager => {
-			if (courseManager && (courseManager.userId === req.user.userId))
+			if (courseManager && (courseManager.userId === req.user.userId)) {
+				courseKey = courseManager.courseKey;
 				return models.CourseManager.destroy({ where: { managerKey: req.params.managerKey } });
+			}
 			code = Code.NOT_FOUND;
 			throw new Error('조회된 강좌 수강 상태나 권한이 없습니다.');
 		}).then(() => {
+			return models.Course.findOne({ where: { courseKey: courseKey } });
+		}).then(course => {
+			course.numOfStudents -= 1;
+			return course.save();
+		}).then(result => {
 			res.status(200).json({
 				status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
 			}).end();

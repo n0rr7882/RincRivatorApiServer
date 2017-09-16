@@ -1,6 +1,7 @@
 const express = require('express');
 const mkdirp = require('mkdirp-promise');
 const rimraf = require('rimraf-promise');
+const gm = require('gm');
 
 const models = require('../models');
 const ac = require('../utils/accountcheck');
@@ -49,6 +50,12 @@ router.post('/', (req, res) => {
 				}
 			}
 		}).then(() => {
+			gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
+				.noProfile()
+				.resize(200, 200)
+				.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, (err) => {
+					if (err) throw err;
+				});
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 생성되었습니다.` }
 			}).end();

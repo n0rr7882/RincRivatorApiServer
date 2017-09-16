@@ -2,5 +2,5 @@
     "port": 3000,
     "accessImage": ".(jpg|jpeg|png|gif)$",
     "accessFile": ".(pdf|hwp|doc|docx|ppt|pptx|txt|zip|7z|jpg|png|jpeg|gif)$",
-    "dbReset": false
+    "dbReset": true
 }
