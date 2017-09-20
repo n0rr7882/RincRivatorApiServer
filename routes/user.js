@@ -36,26 +36,28 @@ router.post('/', (req, res) => {
 			let encrypted = ac.encryptPassword(data.userPw, null);
 			data.userPw = encrypted.userPw;
 			data.salt = encrypted.salt;
+			data.score = 0;
 			return models.User.create(data);
 		}).then(user => {
 			return mkdirp(`${__dirname}/../public/users/${data.userId}`)
 		}).then(r => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
-				if (imageResult.isAvailable) {
+				if (imageResult.isAvailable)
 					return profileImage.mv(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`);
-				} else {
-					code = Code.BAD_REQUEST;
-					throw new Error('유효하지 않은 이미지 확장자 입니다.');
-				}
+				code = Code.BAD_REQUEST;
+				throw new Error('유효하지 않은 이미지 확장자 입니다.');
 			}
 		}).then(() => {
-			gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
-				.noProfile()
-				.resize(200, 200)
-				.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, (err) => {
-					if (err) throw err;
-				});
+			let imageResult = fc.checkImage(profileImage);
+			if (imageResult.isExist && imageResult.isAvailable) {
+				gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
+					.noProfile()
+					.resize(200, 200)
+					.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, (err) => {
+						if (err) throw err;
+					});
+			}
 			res.status(200).json({
 				status: { success: Code.OK, message: `성공적으로 생성되었습니다.` }
 			}).end();
@@ -70,18 +72,21 @@ router.post('/', (req, res) => {
 // 계정 리스트
 router.get('/', (req, res) => {
 	let code = Code.SERVER_ERROR;
-	let query = new Object();
-	query.$and = new Array();
+	let query = {};
+	let order = [];
+	query.$and = [];
 
 	if (req.query.subject) query.$and.push({ subject: req.query.subject });
 	if (req.query.userType) query.$and.push({ userType: req.query.userType });
+	if (req.query.score) order.push(['score', 'DESC']);
+	order.push(['created_at', 'DESC']);
 
 	models.User.findAll({
 		where: query,
 		offset: Number(req.query.offset) * Number(req.query.limit),
 		limit: Number(req.query.limit),
 		attributes: { exclude: ['userPw', 'salt'] },
-		order: [['created_at', 'DESC']]
+		order: order
 	}).then(users => {
 		if (users.length > 0) return users;
 		code = Code.NOT_FOUND;
@@ -149,14 +154,21 @@ router.put('/', (req, res) => {
 		models.User.update(data, { where: { userId: req.user.userId } }).then(r => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
-				if (imageResult.isAvailable) {
+				if (imageResult.isAvailable)
 					return profileImage.mv(`${__dirname}/../public/users/${req.user.userId}/profile-image.jpg`);
-				} else {
-					code = Code.BAD_REQUEST;
-					throw new Error('유효하지 않은 이미지 확장자 입니다.');
-				}
+				code = Code.BAD_REQUEST;
+				throw new Error('유효하지 않은 이미지 확장자 입니다.');
 			}
 		}).then(() => {
+			let imageResult = fc.checkImage(profileImage);
+			if (imageResult.isExist && imageResult.isAvailable) {
+				gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
+					.noProfile()
+					.resize(200, 200)
+					.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, (err) => {
+						if (err) throw err;
+					});
+			}
 			return models.User.findOne({ where: { userId: req.user.userId } });
 		}).then(user => {
 			res.status(200).json({

@@ -50,6 +50,12 @@ module.exports = (sequelize, DataTypes) => {
             field: 'user_type',
             type: DataTypes.STRING,
             allowNull: false
+        },
+        score: {
+            field: 'score',
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: '0'
         }
     }, {
             underscored: true,

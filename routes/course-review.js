@@ -13,36 +13,51 @@ router.post('/:courseKey', (req, res) => {
     if (!req.body.data) {
         res.status(200).json({
             status: { success: Code.BAD_REQUEST, message: '잘못된 요청입니다.' }
-        });
+        }).end();
         return;
     }
 
     let code = Code.SERVER_ERROR;
     let data = JSON.parse(req.body.data);
+    let coursesTeacher = {};
     let applicationCourse = {};
+    let teachersCourses = [];
+    let coursesReviews = [];
+
     if (ac.checkLogin(req, res) && ac.onlyStudent(req, res)) {
         data.userId = req.user.userId;
         data.courseKey = Number(req.params.courseKey);
-        models.Course.findOne({
-            where: { courseKey: Number(req.params.courseKey) }
-        }).then(course => {
+        models.Course.findOne({ where: { courseKey: Number(req.params.courseKey) } }).then(course => {
             if (course) {
                 applicationCourse = course;
                 return models.CourseReview.create(data);
             }
             code = Code.NOT_FOUND;
             throw new Error('존재하지 않는 강좌입니다.');
-        }).then(manager => {
-            applicationCourse.numOfReviews += 1;
-            applicationCourse.score = (((applicationCourse.numOfReviews - 1) * applicationCourse.score) + data.score) / applicationCourse.numOfReviews;
+        }).then(r => {
+            return models.User.findOne({ where: { userId: applicationCourse.userId } });
+        }).then(teacher => {
+            coursesTeacher = teacher;
+            return models.CourseReview.findAll({ where: { courseKey: req.params.courseKey } });
+        }).then(reviews => {
+            let totalScore = 0;
+            for (let i in reviews) totalScore += reviews[i].score;
+            applicationCourse.score = totalScore / reviews.length;
             return applicationCourse.save();
-        }).then(result => {
+        }).then(r => {
+            return models.Course.findAll({ where: { userId: applicationCourse.userId } });
+        }).then(courses => {
+            let totalScore = 0;
+            for (let i in courses) totalScore += courses[i].score;
+            coursesTeacher.score = totalScore / courses.length;
+            return coursesTeacher.save();
+        }).then(r => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 생성되었습니다.' }
             }).end();
         }).catch(e => {
             res.status(200).json({
-                status: { success: code, message: e.messege }
+                status: { success: code, message: e.message }
             }).end();
         });
     }
@@ -150,12 +165,6 @@ router.delete('/:reviewKey', (req, res) => {
             code = Code.NOT_FOUND;
             throw new Error('조회된 리뷰나 권한이 없습니다.');
         }).then(() => {
-            return models.Course.findOne({ courseKey: delCourseReview.courseKey });
-        }).then(course => {
-            course.numOfReviews -= 1;
-            course.score = (((course.numOfReviews + 1) * course.score) - delCourseReview.score) / course.numOfReviews;
-            return course.save();
-        }).then(result => {
             res.status(200).json({
                 status: { success: Code.OK, message: '성공적으로 삭제되었습니다.' }
             }).end();

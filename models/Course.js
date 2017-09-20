@@ -48,13 +48,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         numOfStudents: {
-            field: 'num-of-students',
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: '0'
-        },
-        numOfReviews: {
-            field: 'num-of-reviews',
+            field: 'num_of_students',
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: '0'
