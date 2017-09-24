@@ -154,20 +154,27 @@ router.put('/', (req, res) => {
 		models.User.update(data, { where: { userId: req.user.userId } }).then(r => {
 			let imageResult = fc.checkImage(profileImage);
 			if (imageResult.isExist) {
-				if (imageResult.isAvailable)
-					return profileImage.mv(`${__dirname}/../public/users/${req.user.userId}/profile-image.jpg`);
-				code = Code.BAD_REQUEST;
-				throw new Error('유효하지 않은 이미지 확장자 입니다.');
-			}
-		}).then(() => {
-			let imageResult = fc.checkImage(profileImage);
-			if (imageResult.isExist && imageResult.isAvailable) {
-				gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
-					.noProfile()
-					.resize(200, 200)
-					.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, (err) => {
-						if (err) throw err;
+				if (imageResult.isAvailable) {
+					profileImage.mv(`${__dirname}/../public/users/${req.user.userId}/profile-image.jpg`, err => {
+						if (!err) {
+							gm(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`)
+								.noProfile()
+								.resize(200, 200)
+								.write(`${__dirname}/../public/users/${data.userId}/profile-image.jpg`, err => {
+									if (err) {
+										code = Code.SERVER_ERROR;
+										throw new Error('이미지 처리 중 알 수 없는 에러가 발생하였습니다.');
+									}
+								});
+						} else {
+							code = Code.SERVER_ERROR;
+							throw new Error('이미지 업로드 중 알 수 없는 에러가 발생하였습니다.');
+						}
 					});
+				} else {
+					code = Code.BAD_REQUEST;
+					throw new Error('유효하지 않은 이미지 확장자 입니다.');
+				}
 			}
 			return models.User.findOne({ where: { userId: req.user.userId } });
 		}).then(user => {

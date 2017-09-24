@@ -39,7 +39,7 @@ router.post('/', (req, res) => {
         }).end();
         return;
     }
-    if (ac.checkLogin(req, res) && pc.checkProject(data, res, true)) {
+    if (ac.checkLogin(req, res) && ac.onlyTeacher(req, res) && pc.checkProject(data, res, true)) {
 
         data.userId = req.user.userId;
         data.date = new Date(data.date);
