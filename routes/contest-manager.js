@@ -55,7 +55,7 @@ router.get('/', (req, res) => {
         limit: Number(req.query.limit),
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Contest, attributes: ['contestKey', 'title'] }
+            { model: models.Contest, attributes: ['contestKey', 'title', 'category', 'dateStart', 'dateEnd'] }
         ],
         order: [['created_at', 'DESC']]
     }).then(contestManagers => {
@@ -83,7 +83,7 @@ router.get('/:managerKey', (req, res) => {
         where: { managerKey: req.params.managerKey },
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Contest, attributes: ['contestKey', 'title'] }
+            { model: models.Contest, attributes: ['contestKey', 'title', 'category', 'dateStart', 'dateEnd'] }
         ]
     }).then(contestManager => {
         if (contestManager) return contestManager;

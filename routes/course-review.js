@@ -78,7 +78,7 @@ router.get('/', (req, res) => {
         limit: Number(req.query.limit),
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Course, attributes: ['courseKey', 'title'] }
+            { model: models.Course, attributes: ['courseKey', 'title', 'category'] }
         ],
         order: [['created_at', 'DESC']]
     }).then(courseReviews => {
@@ -106,7 +106,7 @@ router.get('/:reviewKey', (req, res) => {
         where: { reviewKey: req.params.reviewKey },
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Course, attributes: ['courseKey', 'title'] }
+            { model: models.Course, attributes: ['courseKey', 'title', 'category'] }
         ]
     }).then(courseReview => {
         if (courseReview) return courseReview;

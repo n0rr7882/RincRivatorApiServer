@@ -63,7 +63,7 @@ router.get('/', (req, res) => {
         limit: Number(req.query.limit),
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Project, attributes: ['projectKey', 'title'] }
+            { model: models.Project, attributes: ['projectKey', 'title', 'category'] }
         ],
         order: [['created_at', 'DESC']]
     }).then(projectManagers => {
@@ -91,7 +91,7 @@ router.get('/:managerKey', (req, res) => {
         where: { managerKey: req.params.managerKey },
         include: [
             { model: models.User, attributes: ['userId', 'userName'] },
-            { model: models.Project, attributes: ['projectKey', 'title'] }
+            { model: models.Project, attributes: ['projectKey', 'title', 'category'] }
         ]
     }).then(projectManager => {
         if (projectManager) return projectManager;

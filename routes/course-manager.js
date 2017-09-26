@@ -64,7 +64,7 @@ router.get('/', (req, res) => {
 		limit: Number(req.query.limit),
 		include: [
 			{ model: models.User, attributes: ['userId', 'userName'] },
-			{ model: models.Course, attributes: ['courseKey', 'title'] }
+			{ model: models.Course, attributes: ['courseKey', 'title', 'category'] }
 		],
 		order: [['created_at', 'DESC']]
 	}).then(courseManagers => {
@@ -92,7 +92,7 @@ router.get('/:managerKey', (req, res) => {
 		where: { managerKey: req.params.managerKey },
 		include: [
 			{ model: models.User, attributes: ['userId', 'userName'] },
-			{ model: models.Course, attributes: ['courseKey', 'title'] }
+			{ model: models.Course, attributes: ['courseKey', 'title', 'category'] }
 		]
 	}).then(courseManager => {
 		if (courseManager) return courseManager;
