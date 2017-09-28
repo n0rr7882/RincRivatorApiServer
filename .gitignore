@@ -6,6 +6,3 @@ public/*
 
 # 모듈 파일
 node_modules/*
-
-# 암호화 모듈
-utils/password.js
